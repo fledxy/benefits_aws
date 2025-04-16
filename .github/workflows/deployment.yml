@@ -10,9 +10,13 @@ jobs:
   build:
     runs-on: ubuntu:lastest
 
-    # steps:
-    #    - name: Checkout repository
-    #      uses: actions/checkout@v3
+    steps:
+       - name: Checkout repository
+         uses: actions/checkout@v3
   deploy:
+    needs: build
     runs-on: ubuntu:lastest
 
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
