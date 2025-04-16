@@ -9,4 +9,7 @@ COPY . .
 
 EXPOSE 5001
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5001", "app:app"] 
+RUN chmod -R 755 /app
+
+ENTRYPOINT [ "python3" ]
+CMD [ "app.api/main.py" ]
