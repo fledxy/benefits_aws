@@ -1,6 +1,6 @@
 
 variable "cluster_name" {
-
+    default = "benefits-eks"
 }
 variable "cluster_version" {
 
