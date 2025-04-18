@@ -1,0 +1,41 @@
+# name: Deploy Infrastruture with Terraform on AWS
+# on:
+#     push:
+#       branches:
+#         - main # Trigger action on pushes to main branch
+#         - dev
+# permissions:
+#     contents: read
+#     id-token: write
+# jobs:
+    
+#     terraform:
+#         runs-on: ubuntu:latest
+        
+#         steps:
+#             - name: Checkout source code
+#               uses: actions/checkout@v4
+
+#             - name: Setup Terraform
+#               uses: hashicorp/setup-terraform@v3
+            
+#             - name: Terraform init
+#               run: terraform init
+        
+#             - name: Terraform plan for prod environment 
+#               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+#               run: terraform plan -var-file=app.tf/envs/dev.tfvars
+                
+#             - name: Terraform plan for dev environment 
+#               if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+#               run: terraform plan -var-file=app.tf/envs/dev.tfvars
+        
+#             - name: Terraform apply for prod environment 
+#               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+#               run: terraform apply -auto-approve -var-file=app.tf/envs/dev.tfvars
+                
+#             - name: Terraform apply for dev environment 
+#               if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+#               run: terraform apply -auto-approve -var-file=app.tf/envs/dev.tfvars
+
+            

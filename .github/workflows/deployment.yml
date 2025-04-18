@@ -49,20 +49,9 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ secrets.AWS_REGION }} 
-        # - name: Update kube config
-        #   run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+        - name: Update kube config
+          run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
       
-        # - name: Apply Kubernetes manifest
-        #   run: |
-        #       ENV=prod
-        #       if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-        #         ENV=dev
-        #       fi
-        #       echo "current env deploy: ${ENV}"
-        #       sed -i "s|ENV|${ENV}|g" app.api/k8s/manifest.yaml
-        #       sed -i "s|CONTAINER_REGISTRY_BASE_URI|quyencl91/max-weather:${{ github.sha }}|g" app.api/k8s/manifest.yaml
-      
-        #       echo "viewing the manifest"
-        #       cat app.api/k8s/manifest.yaml
-        #       kubectl apply -f app.api/k8s/manifest.yaml
-        #       kubectl rollout status deployment/app-api -n max-weather-${ENV}
+        - name: Deploy to EKS
+          run: |
+              kubectl apply -f app.api/k8s/manifest.yaml

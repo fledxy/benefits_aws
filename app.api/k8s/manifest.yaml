@@ -13,17 +13,30 @@ spec:
   template:
     metadata:
       labels:
-        app: backend-api
+        app: benefits-api
     spec:
       containers:
-      - name: backend-api
+      - name: benefits-api
         image: CONTAINER_REGISTER_BASE_URI
         ports:
-          - name:  backend-api
+          - name:  benefits-api
             containerPort:  8086
             protocol: TCP
         resource:
           request:
             cpu: 256m
             memory: 512Mi
-          limit:
+          limit:           
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-benefits-api
+  namespace: benefits-env
+spec:
+  ports:
+    - port: 80 #egress port 
+      targetPort: 8086 #ingress port ~ containerPort
+  selector:
+    app: benefits-api
+  type: ClusterIP

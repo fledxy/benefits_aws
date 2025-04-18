@@ -56,8 +56,9 @@ bastion_definition = {
     bastion_instance_class      = "t2.micro"
     bastion_monitoring          = true
     bastion_name                = "bastion"
-    bastion_public_key          = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWBo4K5WRbXPsldPwfV+OklXw+Sa8Rt+fJWPW4xGy/QL2M9j+PDaH4N+Lh29GanaNugMpmzGgDH0cb3DtgSbBlld9YKpO57Ew4alAjoIm/3qJRIIdTu8xMrvm8dvSEs760/MUoqxrt04ExPmvghy3hoyTBpYOwUWnc8R2KP5gmrzldbt1lyKytHujHhFel4aeefxctRFZTfbt7+2X5QE4dMB7po55soxTkcGRyghd8/RbJJYi1jvuA5zU1ecpetgu6DtPkcKWKJMz+e6y2N4xHyg8r8UU28O4eJ+LXQQA48HbX8zXzwteSOBS7b1C42yXFwnQXct+QR2X7D88GkAJt rsa-key-20220711"
-    trusted_ips                 = ["58.187.120.129/32"]
+    # bastion_public_key          = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWBo4K5WRbXPsldPwfV+OklXw+Sa8Rt+fJWPW4xGy/QL2M9j+PDaH4N+Lh29GanaNugMpmzGgDH0cb3DtgSbBlld9YKpO57Ew4alAjoIm/3qJRIIdTu8xMrvm8dvSEs760/MUoqxrt04ExPmvghy3hoyTBpYOwUWnc8R2KP5gmrzldbt1lyKytHujHhFel4aeefxctRFZTfbt7+2X5QE4dMB7po55soxTkcGRyghd8/RbJJYi1jvuA5zU1ecpetgu6DtPkcKWKJMz+e6y2N4xHyg8r8UU28O4eJ+LXQQA48HbX8zXzwteSOBS7b1C42yXFwnQXct+QR2X7D88GkAJt rsa-key-20220711"
+    bastion_public_key          = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCrY7bpAAc9SYdcSy4+2mopWD3QVszlMmJbWN2LXHIM1DFktDYjv829lFBKlUX/EVx2gwbPlcK9d0IUATGKjUtDTvHLXrF0ChqHGJInEBQcxbz4ZnJJMd2E8yj5uz60ZufpfKpxfJ4AHejz07pQ3QjApIvAEfXoVXaGF30J7ED2lYDSaVhPXW1kRQbtl0JYxOlRpb7vjEtWcGQYMkZc/TSG6kMfitmi0m7VKNEZW2e7O6+zpDBnKv05eJuopr9V3sbH9YGNDBoJiOYg7rUJbyJPNmyk27cjPwv+jCL6oDB30eLB35j5BoV278zmBIkJf+MMEOvRt5Wa3qm/py5zgmjep89G51np/H+NPhFIli53qF34SpG7N5aPrNY4RNFXI+7cOEoCFtntg2S2163HEWUQSJ7ZuQVNzwo7vqN4Co/hZhvde4n3nU1u5+2oY9AII2wflJu42ytMZaJZNvFROzNH8cGJe+qIN1njA72q4z7EtpL09o3CsI68Mmpe47WMbKS2jithYF2lj2rt7k1UcxCZ75SjtDmKiQQgCD/HU4Sm1o0sGhhhZPF4zeVHwo1EmPo6rj52w3bTZOCWXa+s/dp4bmQpYAGoaV4IbNwdHDjnYrOoxXEC5H3q2JELV0cHpC/g0HWXpJVUrfp8bZmuJ20bD7jqHnq8QMf9de7Th/qHMw== trinhbao2000@gmail.com"
+    trusted_ips                 = ["117.1.120.201/32"]
     user_data_base64            = null
     ext-tags = {
       "fucnt" = "demo-tf"
