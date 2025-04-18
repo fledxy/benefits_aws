@@ -1,6 +1,6 @@
 
-env_prefix                             = "dev"
-vpc_name                               = "dev_env"
+env_prefix                             = "benefits"
+vpc_name                               = "benefits_vpc"
 cidrvpc                                = "10.0.0.0/16"
 enable_nat_gateway                     = true
 single_nat_gateway                     = true
@@ -34,5 +34,5 @@ eks_config = {
   #   },
   # ]
   cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"],
-  eks_cw_logging                       = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  # eks_cw_logging                       = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 }

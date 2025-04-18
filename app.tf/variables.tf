@@ -1,5 +1,5 @@
 variable "vpc_name" {
-  default = "main"
+  default = "fledxy"
 }
 variable "env_prefix" {
 
