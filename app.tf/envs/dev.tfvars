@@ -21,18 +21,18 @@ eks_config = {
   instance_types                                 = ["t2.medium", "t2.large"]
   manage_aws_auth_configmap                      = true
   endpoint_public_access                         = true
-  aws_auth_users = [
-    {
-      userarn  = "arn:aws:iam::539247450054:user/eks-ops"
-      username = "eks-ops"
-      groups   = ["system:masters"]
-    },
-    {
-      userarn  = "arn:aws:iam::539247450054:user/devops"
-      username = "devops"
-      groups   = ["system:masters"]
-    },
-  ]
+  # aws_auth_users = [
+  #   {
+  #     userarn  = "arn:aws:iam::539247450054:user/eks-ops"
+  #     username = "eks-ops"
+  #     groups   = ["system:masters"]
+  #   },
+  #   {
+  #     userarn  = "arn:aws:iam::539247450054:user/devops"
+  #     username = "devops"
+  #     groups   = ["system:masters"]
+  #   },
+  # ]
   cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"],
   eks_cw_logging                       = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 }
