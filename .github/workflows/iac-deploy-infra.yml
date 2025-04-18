@@ -16,15 +16,15 @@
 #             - name: Checkout source code
 #               uses: actions/checkout@v4
 
-#             - name: Setup Terraform
-#               uses: hashicorp/setup-terraform@v3
+            # - name: Setup Terraform
+            #   uses: hashicorp/setup-terraform@v3
             
-#             - name: Terraform init
-#               run: terraform init
+            # - name: Terraform init
+            #   run: terraform init
         
-#             - name: Terraform plan for prod environment 
-#               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-#               run: terraform plan -var-file=app.tf/envs/dev.tfvars
+            # - name: Terraform plan for prod environment 
+            #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+            #   run: terraform plan -var-file=app.tf/envs/dev.tfvars
                 
 #             - name: Terraform plan for dev environment 
 #               if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
@@ -34,8 +34,8 @@
 #               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 #               run: terraform apply -auto-approve -var-file=app.tf/envs/dev.tfvars
                 
-#             - name: Terraform apply for dev environment 
-#               if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
-#               run: terraform apply -auto-approve -var-file=app.tf/envs/dev.tfvars
+            # - name: Terraform apply for dev environment 
+            #   if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+            #   run: terraform apply -auto-approve -var-file=app.tf/envs/dev.tfvars
 
             

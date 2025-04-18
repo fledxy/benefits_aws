@@ -1,4 +1,3 @@
-//init the terraform config
 terraform {
   required_providers {
     aws = {
@@ -13,5 +12,5 @@ terraform {
 }
 
 provider "aws" {
-  region  = "ap-southeast-1" # switch other ap-southeast-1 or
+  region  = "ap-southeast-1" 
 }
