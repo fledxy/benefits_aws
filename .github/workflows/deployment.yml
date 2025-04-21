@@ -46,18 +46,6 @@ jobs:
         - name: Setup Terraform
           uses: hashicorp/setup-terraform@v3
         
-        - name: Directory app.tf
-          run: cd app.tf
-
-        - name: Terraform init
-          run: terraform init 
-
-        - name: Terraform plan
-          run: terraform plan 
-
-        - name: Terraform apply for dev environment 
-          run: terraform apply -auto-approve 
-
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v1
           with:
