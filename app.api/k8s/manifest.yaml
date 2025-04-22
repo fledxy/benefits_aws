@@ -1,56 +1,38 @@
-apiVersion: v1
+apiVersion: v1 
 kind: Namespace
-metadata:
-  name: benefits-ENV
+metadata: 
+  name: benefits-env
 ---
-apiVersion: apps/v1
+apiVersion: v1
 kind: Deployment
 metadata:
   name: app-api
-  namespace: benefits-ENV
+  namespace: benefits-env
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: benefits-api
   template:
     metadata:
       labels:
         app: benefits-api
     spec:
-      nodeSelector:
-        "kubernetes.io/os": linux
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - benefits-api
-              topologyKey: kubernetes.io/hostname
-      imagePullSecrets:
-        - name: dockerhub 
       containers:
-        - name: benefits-api
-          image: CONTAINER_REGISTRY_BASE_URI
-          ports:
-            - containerPort: 8086
-              name: benefits-api
-          resources:
-            requests:
-              cpu: 256m
-              memory: 512Mi
-            limits:
-              cpu: 512m
-              memory: 1024Mi
+      - name: benefits-api
+        image: CONTAINER_REGISTER_BASE_URI
+        ports:
+          - name:  benefits-api
+            containerPort:  8086
+            protocol: TCP
+        resource:
+          request:
+            cpu: 256m
+            memory: 512Mi
+          limit:           
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: svc-benefits-api
-  namespace: benefits-ENV
+  namespace: benefits-env
 spec:
   ports:
     - port: 80 #egress port 
@@ -58,24 +40,3 @@ spec:
   selector:
     app: benefits-api
   type: ClusterIP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: my-app-ingress
-  namespace: benefits-ENV
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    cert-manager.io/issuer: prod-issuer
-    cert-manager.io/issuer-kind: OriginIssuer
-    cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
-    external-dns.alpha.kubernetes.io/hostname: dev-api.quyennv.com
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    alb.ingress.kubernetes.io/scheme: "internet-facing"
-    alb.ingress.kubernetes.io/target-type: "ip"
-
-
-
