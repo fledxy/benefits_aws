@@ -53,12 +53,18 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ secrets.AWS_REGION }} 
             
-        - name: Create EKS using eksctl
-          run: eksctl create cluster --name=fledxy_eks --enable-auto-mode
+        # - name: Create EKS
+        #   run: eksctl create cluster --name=fledxy_eks --enable-auto-mode
 
         - name: Update kube config
           run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
       
-        - name: Deploy to EKS
+        - name: Apply Kubernetes manifest
           run: |
-              kubectl apply -f app.api/k8s/manifest.yaml
+              if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+                echo "ENV=prod" >> $GITHUB_ENV
+              elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+                echo "ENV=dev" >> $GITHUB_ENV
+              fi
+              echo "Namespace is: ${{ env.ENV }}"
+              kubectl apply -f k8s/manifest.yaml --namespace=${{ env.ENV }}
