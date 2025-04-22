@@ -61,5 +61,4 @@ jobs:
               if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
                 ENV=dev
               fi
-              echo "Namespace is: ${{ env.ENV }}"
               kubectl apply -f app.api/k8s/manifest.yaml 
