@@ -1,3 +1,11 @@
+module "vpc" {
+  source                                 = "./_modules/vpc"
+  cidr_block   = var.cidrvpc
+  default_tags = var.default_tags
+  vpc_name = var.vpc_name
+  
+}
+
 #CREATE THE EKS CLUSTER
 module "eks" {
   depends_on = [
