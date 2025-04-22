@@ -64,4 +64,4 @@ jobs:
                 echo "ENV=dev" >> $GITHUB_ENV
               fi
               echo "Namespace is: ${{ env.ENV }}"
-              kubectl apply -f app.api/k8s/manifest.yaml --namespace=${{ env.ENV }}
+              kubectl apply -f app.api/k8s/manifest.yaml 
