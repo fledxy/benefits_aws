@@ -1,9 +1,20 @@
 module "vpc" {
-  source                                 = "./_modules/vpc"
-  cidr_block   = var.cidrvpc
-  default_tags = var.default_tags
-  vpc_name = var.vpc_name
-  
+  source                                 = "./_modules/network"
+  vpc_cidr                               = var.cidrvpc
+  vpc_name                               = var.vpc_name
+  enable_nat_gateway                     = var.enable_nat_gateway
+  single_nat_gateway                     = var.single_nat_gateway
+  enable_dns_hostnames                   = var.enable_dns_hostnames
+  create_database_subnet_group           = var.create_database_subnet_group
+  create_database_subnet_route_table     = var.create_database_subnet_route_table
+  create_database_internet_gateway_route = var.create_database_internet_gateway_route
+  enable_flow_log                        = var.enable_flow_log
+  create_flow_log_cloudwatch_iam_role    = var.create_flow_log_cloudwatch_iam_role
+  create_flow_log_cloudwatch_log_group   = var.create_flow_log_cloudwatch_log_group
+  cluster_name                           = var.eks_config.cluster_name
+  default_tags = merge(
+    var.default_tags
+  )
 }
 
 #CREATE THE EKS CLUSTER
