@@ -58,10 +58,8 @@ jobs:
       
         - name: Apply Kubernetes manifest
           run: |
-              if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-                echo "ENV=prod" >> $GITHUB_ENV
-              elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-                echo "ENV=dev" >> $GITHUB_ENV
+              if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+                ENV=dev
               fi
               echo "Namespace is: ${{ env.ENV }}"
               kubectl apply -f app.api/k8s/manifest.yaml 
