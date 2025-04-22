@@ -28,4 +28,4 @@ USER appuser
 
 # Set the entrypoint and command
 ENTRYPOINT [ "python3" ]
-CMD [ "app.api/main.py" ]
+CMD [ "app.api/app.py" ]
