@@ -3,13 +3,16 @@ kind: Namespace
 metadata: 
   name: benefits-env
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app-api
   namespace: benefits-env
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: benefits-api
   template:
     metadata:
       labels:
@@ -17,16 +20,18 @@ spec:
     spec:
       containers:
       - name: benefits-api
-        # image: CONTAINER_REGISTER_BASE_URI
+        image: CONTAINER_REGISTER_BASE_URI
         ports:
-          - name:  benefits-api
-            containerPort:  8086
+          - name: benefits-api
+            containerPort: 8086
             protocol: TCP
-        resource:
-          request:
-            cpu: 256m
-            memory: 512Mi
-          limit:           
+        resources:
+          requests:
+            cpu: "256m"
+            memory: "512Mi"
+          limits:
+            cpu: "512m"
+            memory: "1Gi"
 ---
 apiVersion: v1
 kind: Service
@@ -35,8 +40,8 @@ metadata:
   namespace: benefits-env
 spec:
   ports:
-    - port: 80 #egress port 
-      targetPort: 8086 #ingress port ~ containerPort
+    - port: 80     # egress port 
+      targetPort: 8086  # ingress port (containerPort)
   selector:
     app: benefits-api
   type: ClusterIP
