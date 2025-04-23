@@ -62,7 +62,5 @@ jobs:
               if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
                 ENV=dev
               fi
-              echo "viewing the manifest"
-              cat app.api/k8s/manifest.yaml
               kubectl apply -f app.api/k8s/manifest.yaml
               kubectl rollout status deployment/app-api -n max-weather-${ENV}

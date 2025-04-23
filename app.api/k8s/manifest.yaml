@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: benefits-api
-        image: CONTAINER_REGISTER_BASE_URI
+        # image: CONTAINER_REGISTER_BASE_URI
         ports:
           - name:  benefits-api
             containerPort:  8086
