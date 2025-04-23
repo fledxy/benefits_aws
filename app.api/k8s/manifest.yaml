@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: benefits-api
-        image: CONTAINER_REGISTER_BASE_URI
+        image: fledxy_application
         ports:
           - name: benefits-api
             containerPort: 8086
