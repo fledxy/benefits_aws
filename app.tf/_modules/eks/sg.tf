@@ -17,7 +17,7 @@ module "cluster-sg" {
       to_port                  = 443
       protocol                 = "tcp"
       description              = "Allow pods to communicate with the cluster API Server"
-      source_security_group_id = module.node-sg.security_group_id
+      # source_security_group_id = module.node-sg.security_group_id
     },
   ]
 
@@ -51,7 +51,7 @@ module "node-sg" {
       to_port                  = 65535
       protocol                 = "tcp"
       description              = "Allow EKS ${var.cluster_name} Control Plane"
-      source_security_group_id = module.cluster-sg.security_group_id
+      # source_security_group_id = module.cluster-sg.security_group_id
     },
   ]
 

@@ -1,6 +1,12 @@
 # Use a minimal, official Python base image
 FROM python:3.10-slim-buster
 
+# Set environment variables for security (prevents Python from writing .pyc files and buffering)
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 # Set a non-root user for security
 RUN groupadd --system appgroup && useradd --system --create-home --gid appgroup appuser
 
@@ -18,7 +24,7 @@ COPY --chown=appuser:appgroup app.api/requirements.txt .
 RUN pip3 install --no-cache-dir --requirement requirements.txt
 
 # Copy the rest of the application files
-# COPY --chown=appuser:appgroup . .
+COPY --chown=appuser:appgroup . .
 
 # Change ownership and permissions
 RUN chmod -R 755 /app

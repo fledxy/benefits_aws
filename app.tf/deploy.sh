@@ -8,7 +8,7 @@ terraform plan -var-file=envs/${current_tfwsp}.tfvars
 echo "do you want apply the infra ? (yes) to continue"
 read tfapply
 if [[ $tfapply == "yes" ]]; then 
-    terraform apply -var-file=envs/${current_tfwsp}.tfvars
+    terraform apply -var-file=envs/${current_tfwsp}.tfvars --auto-approve
     echo "Please follow the terminal output to verify the result of infrastructure provisioning."
 else
     echo "Cancel apply for infra"
