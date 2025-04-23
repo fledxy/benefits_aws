@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
+WORKDIR /app
 
 # Copy and install dependencies securely
 COPY --chown=appuser:appgroup app.api/requirements.txt .
@@ -26,4 +28,4 @@ USER appuser
 
 # Set the entrypoint and command
 ENTRYPOINT [ "python3" ]
-CMD [ "app.api/app.py" ]
+CMD [ "app.api/main.py" ]
