@@ -58,5 +58,6 @@ jobs:
       
         - name: Apply Kubernetes manifest
           run: |
-              kubectl config view
+              sed -i "s|ENV|${ENV}|g" app.api/k8s/manifest.yaml
+              sed -i "s|CONTAINER_REGISTRY_BASE_URI|fledxy/fledxy_application:${{ github.sha }}|g" app.api/k8s/manifest.yaml
               kubectl apply -f app.api/k8s/manifest.yaml
