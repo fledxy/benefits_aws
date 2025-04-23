@@ -61,4 +61,4 @@ jobs:
               if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
                 ENV=dev
               fi
-              kubectl apply -f app.api/k8s/manifest.yaml
+              kubectl apply -f app.api/k8s/manifest.yaml .
