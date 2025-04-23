@@ -58,6 +58,7 @@ jobs:
       
         - name: Apply Kubernetes manifest
           run: |
+              ENV=dev
               if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
                 ENV=dev
               fi
