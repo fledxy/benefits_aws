@@ -36,7 +36,7 @@ jobs:
         if: ${{ inputs.confirmation == 'Confirm' }}
         run: |
             cd app.tf
-            terraform inti -backend-config=${{github.ref_name}}.conf
+            terraform init -backend-config=${{github.ref_name}}.conf
             terraform destroy -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
             cd ..
           
