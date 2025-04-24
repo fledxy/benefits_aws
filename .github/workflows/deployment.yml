@@ -47,11 +47,10 @@ jobs:
           uses: hashicorp/setup-terraform@v3
         - name: Deploy infrastruture
           run: |
-                print("${{github.ref_name}}"")
-                cd app.tf
-                terraform init -backend-config=${{github.ref_name}}.conf
-                terraform plan -var-file=envs/${{github.ref_name}}.tfvars
-                terraform apply -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
+              cd app.tf
+              terraform init -backend-config=${{github.ref_name}}.conf
+              terraform plan -var-file=envs/${{github.ref_name}}.tfvars
+              terraform apply -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
 
 
         - name: Configure AWS credentials
