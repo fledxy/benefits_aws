@@ -46,16 +46,17 @@ spec:
     app: benefits-api
   type: ClusterIP
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: benefits-rolebinding
+  name: benefits-ingress
   namespace: benefits-env
-subjects:
-  - kind: ServiceAccount
-    name: benefits-sa
-    namespace: benefits-env
-roleRef:
-  kind: Role
-  name: benefits-role
-  apiGroup: rbac.authorization.k8s.io
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    cert-manager.io/issuer: prod-issuer
+    cert-manager.io/issuer-kind: OriginIssuer
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"
