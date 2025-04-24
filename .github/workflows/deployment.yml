@@ -52,6 +52,7 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ secrets.AWS_REGION }} 
+            
         - name: Deploy infrastruture
           run: |
               cd app.tf
@@ -59,7 +60,7 @@ jobs:
               terraform plan -var-file=envs/${{github.ref_name}}.tfvars
               terraform apply -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
               cd ..
-              
+
         - name: Update kube config
           run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
             
