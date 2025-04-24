@@ -45,3 +45,17 @@ spec:
   selector:
     app: benefits-api
   type: ClusterIP
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: benefits-rolebinding
+  namespace: benefits-env
+subjects:
+  - kind: ServiceAccount
+    name: benefits-sa
+    namespace: benefits-env
+roleRef:
+  kind: Role
+  name: benefits-role
+  apiGroup: rbac.authorization.k8s.io
