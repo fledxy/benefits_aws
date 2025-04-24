@@ -31,6 +31,8 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }} 
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v3
+      - name: Directory terraform file
+        run:  cd app.tf
         
       - name: Terraform init
         run: terraform init -backend-config=${{github.ref_name}}.conf
@@ -41,9 +43,7 @@ jobs:
           
       - name: Terraform destroy
         if: ${{ inputs.confirmation == 'Confirm' }}
-        run: |  
-            cd app.tf
-            terraform destroy -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
+        run: terraform destroy -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
           
       - name: Check Confirmation
         if: github.event.inputs.confirmation != 'Confirm'
