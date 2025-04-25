@@ -33,15 +33,15 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform init
-        run: terraform init -backend-config=${{github.ref_name}}.conf
+        run: terraform -chdir=app.tf init -backend-config=${{github.ref_name}}.conf
   
       - name: Terraform destroy plan
         if: ${{ inputs.confirmation == 'Confirm' }}
-        run: terraform plan -destroy -var-file=envs/${{github.ref_name}}.tfvars 
+        run: terraform -chdir=app.tf plan -destroy -var-file=envs/${{github.ref_name}}.tfvars 
           
       - name: Terraform destroy
         if: ${{ inputs.confirmation == 'Confirm' }}
-        run:  terraform destroy -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
+        run:  terraform -chdir=app.tf destroy -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
           
       - name: Check Confirmation
         if: github.event.inputs.confirmation != 'Confirm'
