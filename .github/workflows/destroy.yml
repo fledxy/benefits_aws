@@ -16,9 +16,9 @@ jobs:
   destroy:
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
-    defaults:
-       run:
-        working-directory: app.tf
+    # defaults:
+    #    run:
+    #     working-directory: app.tf
     steps: 
       - name: Checkout repository
         uses: actions/checkout@v3
