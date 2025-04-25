@@ -16,9 +16,9 @@ jobs:
   destroy:
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
-    # defaults:
-    #    run:
-    #     working-directory: app.tf
+    defaults:
+       run:
+        working-directory: app.tf
     steps: 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -36,16 +36,16 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform init
-        run:  terraform -chdir=app.tf init -backend-config=${{github.ref_name}}.conf
+        run:  terraform init -backend-config=${{github.ref_name}}.conf
 
   
       - name: Terraform destroy plan
         if: ${{ inputs.confirmation == 'Confirm' }}
-        run: terraform -chdir=app.tf plan -destroy -var-file=envs/${{ github.ref_name }}.tfvars
+        run: terraform plan -destroy -var-file=envs/${{ github.ref_name }}.tfvars
           
       - name: Terraform destroy
         if: ${{ inputs.confirmation == 'Confirm' }}
-        run: terraform -chdir=app.tf destroy -auto-approve -var-file=envs/${{ github.ref_name }}.tfvars
+        run: terraform destroy -auto-approve -var-file=envs/${{ github.ref_name }}.tfvars
           
       - name: Check Confirmation
         if: github.event.inputs.confirmation != 'Confirm'
