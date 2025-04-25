@@ -40,11 +40,11 @@ jobs:
   
       - name: Terraform destroy plan
         if: ${{ inputs.confirmation == 'Confirm' }}
-        run: terraform plan -destroy -var-file=envtfvars/${{ github.ref_name }}.tfvars
+        run: terraform plan -destroy -var-file=envs/${{ github.ref_name }}.tfvars
           
       - name: Terraform destroy
         if: ${{ inputs.confirmation == 'Confirm' }}
-        run: terraform destroy -auto-approve -var-file=envtfvars/${{ github.ref_name }}.tfvars
+        run: terraform destroy -auto-approve -var-file=envs/${{ github.ref_name }}.tfvars
           
       - name: Check Confirmation
         if: github.event.inputs.confirmation != 'Confirm'
