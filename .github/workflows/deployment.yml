@@ -67,21 +67,21 @@ jobs:
               echo "username=$(echo $ARN | awk -F'/' '{print $NF}')" >> $GITHUB_OUTPUT
         - name: Access to eks cluster
           run: |
-              aws eks create-access-entry 
-              --cluster-name ${{ secrets.EKS_CLUSTER_NAME }}
-              --principal-arn ${{ steps.identity.outputs.arn }} 
-              --type STANDARD 
-              --user ${{ steps.identity.outputs.username }} 
-              --kubernetes-groups Viewers 
-              --profile $awsprofile 
+              aws eks create-access-entry\
+              --cluster-name ${{ secrets.EKS_CLUSTER_NAME }}\
+              --principal-arn ${{ steps.identity.outputs.arn }}\
+              --type STANDARD\ 
+              --user ${{ steps.identity.outputs.username }}\
+              --kubernetes-groups Viewers\ 
+              --profile $awsprofile\
               --region ${{ secrets.AWS_REGION }}
 
-              aws eks associate-access-policy 
-              --cluster-name ${{ secrets.EKS_CLUSTER_NAME }}
-              --profile ${{ steps.identity.outputs.username }}
-              --region ${{ secrets.AWS_REGION }}
-              --principal-arn ${{ steps.identity.outputs.arn }} 
-              --access-scope type=cluster 
+              aws eks associate-access-policy \
+              --cluster-name ${{ secrets.EKS_CLUSTER_NAME }}\
+              --profile ${{ steps.identity.outputs.username }}\
+              --region ${{ secrets.AWS_REGION }}\
+              --principal-arn ${{ steps.identity.outputs.arn }} \
+              --access-scope type=cluster \
               --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
 
         - name: Update kube config
