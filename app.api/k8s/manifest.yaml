@@ -18,6 +18,20 @@ spec:
       labels:
         app: benefits-api
     spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - benefits-api
+              topologyKey: kubernetes.io/hostname
+      imagePullSecrets:
+        - name: dockerhub
       containers:
       - name: benefits-api
         image: CONTAINER_REGISTRY_BASE_URI

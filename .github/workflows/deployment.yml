@@ -59,26 +59,37 @@ jobs:
               terraform init -backend-config=${{github.ref_name}}.conf
               terraform plan -var-file=envs/${{github.ref_name}}.tfvars
               terraform apply -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
+
         - name: Get AWS user ARN and username
           id: identity
           run: |
               ARN=$(aws sts get-caller-identity --query Arn --output text)
               echo "arn=$ARN" >> $GITHUB_OUTPUT
               echo "username=$(echo $ARN | awk -F'/' '{print $NF}')" >> $GITHUB_OUTPUT
+        - name: Create DockerHub secret
+          run: |
+              kubectl create secret docker-registry dockerhub \
+              --docker-server=docker.io \
+              --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
+              --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+              --docker-email=trinhbao2000@gmail.com \
+              --namespace=benefits-env\
+              --dry-run=client -o yaml | kubectl apply -f -  
+                  
         - name: Access to eks cluster
           run: |
               aws eks create-access-entry\
               --cluster-name ${{ secrets.EKS_CLUSTER_NAME }}\
               --principal-arn ${{ steps.identity.outputs.arn }}\
               --type STANDARD\ 
-              --user ${{ steps.identity.outputs.username }}\
+              --user fledxy\
               --kubernetes-groups Viewers\ 
               --profile $awsprofile\
               --region ${{ secrets.AWS_REGION }}
 
               aws eks associate-access-policy \
               --cluster-name ${{ secrets.EKS_CLUSTER_NAME }}\
-              --profile ${{ steps.identity.outputs.username }}\
+              --profile fledxy\
               --region ${{ secrets.AWS_REGION }}\
               --principal-arn ${{ steps.identity.outputs.arn }} \
               --access-scope type=cluster \
