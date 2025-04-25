@@ -6,7 +6,7 @@ on:
       confirmation: 
         description: 'Type "Confirm" to destroy all the terraform infrastructure resources'
         required: true 
-        default: '' 
+        default: 'dev' 
 
 permissions:
   id-token: write
@@ -15,7 +15,10 @@ permissions:
 jobs:
   destroy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name }} #get correct the environment <dev or main >
+    environment: ${{ github.ref_name }}
+    defaults:
+       run:
+        working-directory: app.tf
     steps: 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -32,13 +35,16 @@ jobs:
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Terraform init
+        run: terraform init -backend-config=${{ github.ref_name }}.conf -reconfigure"
+  
+      - name: Terraform destroy plan
+        if: ${{ inputs.confirmation == 'Confirm' }}
+        run: terraform plan -destroy -var-file=envtfvars/${{ github.ref_name }}.tfvars
+          
       - name: Terraform destroy
         if: ${{ inputs.confirmation == 'Confirm' }}
-        run: |
-            cd app.tf
-            terraform init -backend-config=${{github.ref_name}}.conf
-            terraform destroy -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
-            cd ..
+        run: terraform destroy -auto-approve -var-file=envtfvars/${{ github.ref_name }}.tfvars
           
       - name: Check Confirmation
         if: github.event.inputs.confirmation != 'Confirm'
