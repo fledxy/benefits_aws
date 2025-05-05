@@ -35,15 +35,15 @@ jobs:
        - name: Push Docker image to Docker hub
          run: |
              docker push fledxy/fledxy_application:${{ github.sha }}
-       - name: Create DockerHub secret
-         run: |
-            kubectl create secret docker-registry dockerhub \
-            --docker-server=https://index.docker.io/v1/ \
-            --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
-            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
-            --docker-email=trinhbao2000@gmail.com \
-            --namespace=benefits-env\
-            --dry-run=client -o yaml | kubectl apply -f -  
+      #  - name: Create DockerHub secret
+      #    run: |
+      #       kubectl create secret docker-registry dockerhub \
+      #       --docker-server=https://index.docker.io/v1/ \
+      #       --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
+      #       --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+      #       --docker-email=trinhbao2000@gmail.com \
+      #       --namespace=benefits-env\
+      #       --dry-run=client -o yaml | kubectl apply -f -  
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -69,12 +69,12 @@ jobs:
               terraform plan -var-file=envs/${{github.ref_name}}.tfvars
               terraform apply -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
 
-        - name: Get AWS user ARN and username
-          id: identity
-          run: |
-              ARN=$(aws sts get-caller-identity --query Arn --output text)
-              echo "arn=$ARN" >> $GITHUB_OUTPUT
-              echo "username=$(echo $ARN | awk -F'/' '{print $NF}')" >> $GITHUB_OUTPUT
+        # - name: Get AWS user ARN and username
+        #   id: identity
+        #   run: |
+        #       ARN=$(aws sts get-caller-identity --query Arn --output text)
+        #       echo "arn=$ARN" >> $GITHUB_OUTPUT
+        #       echo "username=$(echo $ARN | awk -F'/' '{print $NF}')" >> $GITHUB_OUTPUT
 
         - name: Access to eks cluster
           run: |
