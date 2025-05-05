@@ -16,6 +16,7 @@ terraform {
     encrypt = true  
     key = "dev-tf.tfstate"
     region = "ap-southeast-2"
+    profile = "fledxy_devops"
   }
 }
 provider "aws" {

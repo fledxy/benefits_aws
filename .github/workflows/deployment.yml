@@ -69,12 +69,12 @@ jobs:
               terraform plan -var-file=envs/${{github.ref_name}}.tfvars
               terraform apply -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
 
-        # - name: Get AWS user ARN and username
-        #   id: identity
-        #   run: |
-        #       ARN=$(aws sts get-caller-identity --query Arn --output text)
-        #       echo "arn=$ARN" >> $GITHUB_OUTPUT
-        #       echo "username=$(echo $ARN | awk -F'/' '{print $NF}')" >> $GITHUB_OUTPUT
+        - name: Get AWS user ARN and username
+          id: identity
+          run: |
+              ARN=$(aws sts get-caller-identity --query Arn --output text)
+              echo "arn=$ARN" >> $GITHUB_OUTPUT
+              echo "username=$(echo $ARN | awk -F'/' '{print $NF}')" >> $GITHUB_OUTPUT
 
         - name: Access to eks cluster
           run: |
