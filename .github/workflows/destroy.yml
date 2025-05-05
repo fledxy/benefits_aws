@@ -37,7 +37,6 @@ jobs:
 
       - name: Terraform init
         run:  terraform init -backend-config=${{github.ref_name}}.conf
-
   
       - name: Terraform destroy plan
         if: ${{ inputs.confirmation == 'Confirm' }}
