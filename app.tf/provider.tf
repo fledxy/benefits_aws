@@ -10,14 +10,7 @@ terraform {
     }
   }
 }
-terraform {
-  backend "s3" {
-    bucket  = "benefit.bkt"
-    encrypt = true  
-    key = "benefit.tfstate"
-    region = "ap-southeast-2"
-  }
-}
+
 provider "aws" {
   region  = "ap-southeast-2" 
 }
