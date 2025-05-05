@@ -14,7 +14,7 @@ terraform {
   backend "s3" {
     bucket  = "benefit.bkt"
     encrypt = true  
-    key = "benefit.bkt.tfstate"
+    key = "benefit.tfstate"
     region = "ap-southeast-2"
   }
 }
