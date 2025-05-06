@@ -35,15 +35,15 @@ jobs:
        - name: Push Docker image to Docker hub
          run: |
              docker push fledxy/fledxy_application:${{ github.sha }}
-      #  - name: Create DockerHub secret
-      #    run: |
-      #       kubectl create secret docker-registry dockerhub \
-      #       --docker-server=https://index.docker.io/v1/ \
-      #       --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
-      #       --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
-      #       --docker-email=trinhbao2000@gmail.com \
-      #       --namespace=benefits-env\
-      #       --dry-run=client -o yaml | kubectl apply -f -  
+       - name: Create DockerHub secret
+         run: |
+            kubectl create secret docker-registry dockerhub \
+            --docker-server=https://index.docker.io/v1/ \
+            --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
+            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+            --docker-email=trinhbao2000@gmail.com \
+            --namespace=benefits-env\
+            --dry-run=client -o yaml | kubectl apply -f -  
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -78,22 +78,9 @@ jobs:
 
         - name: Access to eks cluster
           run: |
-              aws eks create-access-entry\
-              --cluster-name ${{ secrets.EKS_CLUSTER_NAME }}\
-              --principal-arn ${{ steps.identity.outputs.arn }}\
-              --type STANDARD\ 
-              --user fledxy\
-              --kubernetes-groups Viewers\ 
-              --profile $awsprofile\
-              --region ${{ secrets.AWS_REGION }}
+              aws eks create-access-entry --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --principal-arn ${{ steps.identity.outputs.arn }} --type STANDARD --user fledxy --kubernetes-groups Viewers --profile $awsprofile --region ${{ secrets.AWS_REGION }}
 
-              aws eks associate-access-policy \
-              --cluster-name ${{ secrets.EKS_CLUSTER_NAME }}\
-              --profile fledxy\
-              --region ${{ secrets.AWS_REGION }}\
-              --principal-arn ${{ steps.identity.outputs.arn }} \
-              --access-scope type=cluster \
-              --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
+              aws eks associate-access-policy --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --profile fledxy --region ${{ secrets.AWS_REGION }} --principal-arn ${{ steps.identity.outputs.arn }}  --access-scope type=cluster  --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
 
         - name: Update kube config
           run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
