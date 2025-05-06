@@ -35,15 +35,6 @@ jobs:
        - name: Push Docker image to Docker hub
          run: |
              docker push fledxy/fledxy_application:${{ github.sha }}
-       - name: Create DockerHub secret
-         run: |
-            kubectl create secret docker-registry dockerhub \
-            --docker-server=https://index.docker.io/v1/ \
-            --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
-            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
-            --docker-email=trinhbao2000@gmail.com \
-            --namespace=benefits-env\
-            --dry-run=client -o yaml | kubectl apply -f -  
   deploy:
     needs: build
     runs-on: ubuntu-latest
