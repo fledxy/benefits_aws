@@ -65,7 +65,7 @@ jobs:
         - name: Deploy infrastruture
           working-directory: app.tf
           run: |
-              terraform init -backend-config=${{github.ref_name}}.conf
+              terraform init 
               terraform plan -var-file=envs/${{github.ref_name}}.tfvars
               terraform apply -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
 
