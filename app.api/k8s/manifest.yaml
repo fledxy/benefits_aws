@@ -34,7 +34,7 @@ spec:
         - name: dockerhub
       containers:
       - name: benefits-api
-        image: CONTAINER_REGISTRY_BASE_URI
+        image: fledxy/fledxy_application:latest
         ports:
           - name: benefits-api
             containerPort: 8086
