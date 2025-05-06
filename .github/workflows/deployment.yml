@@ -62,9 +62,9 @@ jobs:
 
         - name: Access to eks cluster
           run: |
-              aws eks create-access-entry --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --principal-arn ${{ secrets.AWS_USER_ARN }} --type STANDARD --user ${{ secrets.AWS_USERNAME }} --kubernetes-groups Viewers --profile fledxy_devops --region ${{ secrets.AWS_REGION }}
+              aws eks create-access-entry --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --principal-arn ${{ secrets.AWS_USER_ARN }} --type STANDARD --user ${{ secrets.AWS_USERNAME }} --kubernetes-groups Viewers --profile ${{ secrets.AWS_PROFILE }} --region ${{ secrets.AWS_REGION }}
 
-              aws eks associate-access-policy --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --profile fledxy_devops --region ${{ secrets.AWS_REGION }} --principal-arn ${{ steps.identity.outputs.arn }}  --access-scope type=cluster  --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
+              aws eks associate-access-policy --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --profile ${{ secrets.AWS_PROFILE }} --region ${{ secrets.AWS_REGION }} --principal-arn ${{ secrets.AWS_USER_ARN }}  --access-scope type=cluster  --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
 
         - name: Update kube config
           run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
