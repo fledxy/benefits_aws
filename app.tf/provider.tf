@@ -15,7 +15,7 @@ terraform {
     bucket  = "benefit.bkt"
     key = "dev-tf.tfstate"
     region = "ap-southeast-2"
-    encrypt        = true
+    encrypt = true
   }
 }
 provider "aws" {
