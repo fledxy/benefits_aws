@@ -30,11 +30,11 @@ jobs:
 
        - name: Build Docker image
          run: |
-             docker build -f app.api/app.Dockerfile  -t fledxy/fledxy_application:latest .
+             docker build -f app.api/app.Dockerfile  -t fledxy/fledxy_application:1 .
            
        - name: Push Docker image to Docker hub
          run: |
-             docker push fledxy/fledxy_application:latest
+             docker push fledxy/fledxy_application:1
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -74,4 +74,4 @@ jobs:
              kubectl create secret docker-registry dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN}} --docker-email=trinhbao2000@gmail.com 
         
         - name: Apply Kubernetes manifest
-          run: kubectl apply -f app.api/k8s/manifest.yaml
+          run: kubectl apply -f app.api/k8s/manifest.yaml --namespace=benefits-env
