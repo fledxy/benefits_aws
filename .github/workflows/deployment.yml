@@ -75,14 +75,11 @@ jobs:
         
         - name: Apply Kubernetes manifest
           run: kubectl apply -f app.api/k8s/manifest.yaml --namespace=benefits-env
-  testing:
-    needs: deploy
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check deploy EKS
-        run: |
-            kubectl get namespace -A
-            kubectl get node -n benefits-env
-            kubectl get pods -n benefits-env
+        
+        - name: Check Deploy Eks
+          run: |
+             kubectl get namespace -A
+             kubectl get node -A
+             kubectl get pod -A
+             kubectl get pods -n benefits-env
 
