@@ -1,7 +1,4 @@
-locals {
-  azs        = length(data.aws_availability_zones.available.names)
-  account_id = data.aws_caller_identity.current.account_id
-}
+
 resource "random_integer" "this" {
   min = 0
   max = 2
