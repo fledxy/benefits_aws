@@ -30,11 +30,11 @@ jobs:
 
        - name: Build Docker image
          run: |
-             docker build -f app.api/app.Dockerfile  -t fledxy/fledxy_application:1 .
+             docker build -f app.api/app.Dockerfile  -t fledxy/fledxy_application:2 .
            
        - name: Push Docker image to Docker hub
          run: |
-             docker push fledxy/fledxy_application:1
+             docker push fledxy/fledxy_application:2
   deploy:
     needs: build
     runs-on: ubuntu-latest
