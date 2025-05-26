@@ -73,7 +73,7 @@ jobs:
             aws-region: ${{ secrets.AWS_REGION }} 
 
         - name: Terraform init
-          run: terraform init
+          run: terraform init -upgrade
 
         - name: Terraform plan for environment 
           run: terraform plan --var-file=envs/${{ github.ref_name }}.tfvars
@@ -123,14 +123,14 @@ jobs:
           run: |
             cd k8s/frontend
             kustomize edit set namespace benefits-${{ github.ref_name }}
-            kustomize edit set image fledxy/fledxy_application=fledxy/benefits-frontend:${{ github.sha }}
+            kustomize edit set image fledxy/fledxy_application=fledxy/fledxy_application:${{ github.sha }}
             kubectl apply -k .
             
         - name: Deploy Backend using Kustomize
           run: |
             cd k8s/backend
             kustomize edit set namespace benefits-${{ github.ref_name }}
-            kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
+            kustomize edit set image fledxy/fledxy_application=fledxy/fledxy_application:${{ github.sha }}
             kubectl apply -k .
         
 
