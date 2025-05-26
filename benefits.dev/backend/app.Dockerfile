@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy and install dependencies securely
-COPY --chown=appuser:appgroup benefits.dev/backend/requirements.txt .
+COPY --chown=appuser:appgroup benefits.dev/backend/requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir --requirement requirements.txt
 
 # Copy the rest of the application files
