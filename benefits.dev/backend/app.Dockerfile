@@ -20,19 +20,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy and install dependencies securely
-COPY --chown=appuser:appgroup benefits.dev/backend/requirements.txt requirements.txt
-RUN pip3 install --no-cache-dir --requirement requirements.txt
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application files
-COPY --chown=appuser:appgroup benefits.dev/backend/ .
+COPY . .
 
 # Change ownership and permissions
 USER root
-RUN chmod -R 755 /app
+RUN chown -R appuser:appgroup /app && chmod -R 755 /app
 
 # Switch to non-root user
 USER appuser
 
 # Set the entrypoint and command
-ENTRYPOINT [ "python3" ]
-CMD [ "app.py" ]
+ENTRYPOINT ["python3"]
+CMD ["app.py"]
