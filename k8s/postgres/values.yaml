@@ -39,7 +39,7 @@ ingress:
 
 persistence:
   enabled: true
-  storageClass: ""
+  storageClass: "gp2"
   size: 8Gi
   accessMode: ReadWriteOnce
 
