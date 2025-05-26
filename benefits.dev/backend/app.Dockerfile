@@ -27,6 +27,7 @@ RUN pip3 install --no-cache-dir --requirement requirements.txt
 COPY --chown=appuser:appgroup benefits.dev/backend/ .
 
 # Change ownership and permissions
+USER root
 RUN chmod -R 755 /app
 
 # Switch to non-root user
