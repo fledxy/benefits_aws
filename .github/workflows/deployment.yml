@@ -35,10 +35,6 @@ jobs:
        - name: Build Docker image frontend
          run: |
              docker build -f benefits.dev/frontend/app.Dockerfile  -t fledxy/benefits-frontend:${{ github.sha }} ./benefits.dev/frontend
-
-       - name: Build Docker image application
-         run: |
-             docker build -f fledxy_application.Dockerfile -t fledxy/fledxy_application:${{ github.sha }} .
              
        - name: Push Docker images to Docker hub
          run: |

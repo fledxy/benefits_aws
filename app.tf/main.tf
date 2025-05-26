@@ -90,6 +90,7 @@ module "apigateway" {
 
   tags = merge(
     var.default_tags,
+    each.value.ext-tags,
     {
       "ext-env" : terraform.workspace
     }
