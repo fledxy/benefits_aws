@@ -28,15 +28,61 @@ jobs:
            username: ${{ secrets.DOCKERHUB_USERNAME }}
            password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-       - name: Build Docker image
+       - name: Build Docker image backend
          run: |
-             docker build -f app.api/app.Dockerfile  -t fledxy/fledxy_application:3 .
-           
-       - name: Push Docker image to Docker hub
+             docker build -f benefits.dev/backend/app.Dockerfile  -t fledxy/benefits-backend:${{ github.sha }} ./benefits.dev/backend
+             
+       - name: Build Docker image frontend
          run: |
-             docker push fledxy/fledxy_application:3
-  deploy:
-    needs: build
+             docker build -f benefits.dev/frontend/app.Dockerfile  -t fledxy/benefits-frontend:${{ github.sha }} ./benefits.dev/frontend
+
+       - name: Build Docker image application
+         run: |
+             docker build -f fledxy_application.Dockerfile -t fledxy/fledxy_application:${{ github.sha }} .
+             
+       - name: Push Docker images to Docker hub
+         run: |
+             docker push fledxy/benefits-backend:${{ github.sha }}
+             docker push fledxy/benefits-frontend:${{ github.sha }}
+             docker push fledxy/fledxy_application:${{ github.sha }}
+
+       - name: Tag Docker image as latest
+         run: |
+             docker tag fledxy/benefits-backend:${{ github.sha }} fledxy/benefits-backend:latest
+             docker tag fledxy/benefits-frontend:${{ github.sha }} fledxy/benefits-frontend:latest
+             docker tag fledxy/fledxy_application:${{ github.sha }} fledxy/fledxy_application:latest
+
+  deploy-infra:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app.tf
+
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }} 
+
+        - name: Terraform init
+          run: terraform init
+
+        - name: Terraform plan for environment 
+          run: terraform plan --var-file=envs/${{ github.ref_name }}.tfvars
+
+        - name: Terraform apply for environment 
+          run: terraform apply -auto-approve --var-file=envs/${{ github.ref_name }}.tfvars
+  
+  deploy-to-eks:
+    needs: [build, deploy-infra]
     runs-on: ubuntu-latest
 
     steps:
@@ -52,13 +98,6 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ secrets.AWS_REGION }} 
-            
-        - name: Deploy infrastruture
-          working-directory: app.tf
-          run: |
-              terraform init 
-              terraform plan -var-file=envs/${{github.ref_name}}.tfvars
-              terraform apply -var-file=envs/${{github.ref_name}}.tfvars --auto-approve
 
         - name: Access to eks cluster
           run: |
@@ -69,11 +108,31 @@ jobs:
         - name: Update kube config
           run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
         
+        - name: Create namespace for branch
+          run: |
+            kubectl create namespace benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
+            
         - name: Create DockerHub secret
           run: |
-             kubectl create secret docker-registry dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN}} --docker-email=trinhbao2000@gmail.com --namespace=benefits-env
+             kubectl create secret docker-registry dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN}} --docker-email=trinhbao2000@gmail.com --namespace benefits-${{ github.ref_name }}
+
+        - name: Deploy PostgreSQL using Helm
+          run: helm install postgres k8s/postgres -f k8s/postgres/values.yaml --namespace benefits-${{ github.ref_name }}
+            
+        - name: Deploy Frontend using Kustomize
+          run: |
+            cd k8s/frontend
+            kustomize edit set namespace benefits-${{ github.ref_name }}
+            kustomize edit set image fledxy/fledxy_application=fledxy/benefits-frontend:${{ github.sha }}
+            kubectl apply -k .
+            
+        - name: Deploy Backend using Kustomize
+          run: |
+            cd k8s/backend
+            kustomize edit set namespace benefits-${{ github.ref_name }}
+            kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
+            kubectl apply -k .
         
-        - name: Apply Kubernetes manifest
-          run: kubectl apply -f app.api/k8s/manifest.yaml --namespace=benefits-env
+
         
 

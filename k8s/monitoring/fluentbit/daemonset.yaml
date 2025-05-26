@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: monitoring
+  labels:
+    k8s-app: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      k8s-app: fluent-bit
+  template:
+    metadata:
+      labels:
+        k8s-app: fluent-bit
+    spec:
+      serviceAccountName: fluent-bit
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:latest
+          ports:
+            - containerPort: 24224
+          volumeMounts:
+            - name: varlogpodlogs
+              mountPath: /var/log/pods
+              readOnly: true
+            - name: varlogcontainers
+              mountPath: /var/log/containers
+              readOnly: true
+            - name: fluentbitconfig
+              mountPath: /fluent-bit/etc/
+      volumes:
+        - name: varlogpodlogs
+          hostPath:
+            path: /var/log/pods
+        - name: varlogcontainers
+          hostPath:
+            path: /var/log/containers
+        - name: fluentbitconfig
+          configMap:
+            name: fluent-bit-config 
