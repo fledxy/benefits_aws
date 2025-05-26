@@ -24,7 +24,7 @@ COPY --chown=appuser:appgroup benefits.dev/backend/requirements.txt requirements
 RUN pip3 install --no-cache-dir --requirement requirements.txt
 
 # Copy the rest of the application files
-COPY --chown=appuser:appgroup . .
+COPY --chown=appuser:appgroup benefits.dev/backend/ .
 
 # Change ownership and permissions
 RUN chmod -R 755 /app
@@ -34,4 +34,4 @@ USER appuser
 
 # Set the entrypoint and command
 ENTRYPOINT [ "python3" ]
-CMD [ "benefits.dev/backend/app.py" ]
+CMD [ "app.py" ]
