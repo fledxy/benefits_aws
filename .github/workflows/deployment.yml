@@ -112,7 +112,18 @@ jobs:
 
         - name: Deploy PostgreSQL using Helm
           run: helm install postgres k8s/postgres -f k8s/postgres/values.yaml --namespace benefits-${{ github.ref_name }}
+        
+        - name: Deploy Kubernetes
+          run: |
+            kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
+            kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
+            kubectl apply -f k8s/service.yaml --namespace benefits-${{ github.ref_name }}
             
+        - name: Wait for PostgreSQL to be ready
+          run: |
+            kubectl wait --for=condition=available --timeout=600s deployment/postgres --namespace benefits-${{ github.ref_name }}
+            kubectl wait --for=condition=ready pod -l app=postgres --namespace benefits-${{ github.ref_name }}
+
         - name: Deploy Frontend using Kustomize
           run: |
             cd k8s/frontend
