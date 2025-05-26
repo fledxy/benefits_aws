@@ -1,6 +1,6 @@
 
 env_prefix                             = "benefits"
-vpc_name                               = "benefits_vpc"
+vpc_name                               = "benefits_dev"
 cidrvpc                                = "10.0.0.0/16"
 enable_nat_gateway                     = true
 single_nat_gateway                     = true
@@ -12,7 +12,7 @@ enable_flow_log                        = true
 create_flow_log_cloudwatch_iam_role    = true
 create_flow_log_cloudwatch_log_group   = true
 eks_config = {
-  cluster_name                                   = "fledxy"
+  cluster_name                                   = "fledxy_dev"
   cluster_version                                = "1.30"
   min_size                                       = 3
   max_size                                       = 9
@@ -60,3 +60,16 @@ bastion_definition = {
   }
 }
 cluster_endpoint_public_access = true
+
+api_gateways = {
+  "benefits_gateways" = {
+    aws_api_gateway_rest_api_name        = "benefits_gateways"
+    api_gateway_protocol                 = "HTTP"
+    authorizers                          = {}
+    allow_methods                        = ["POST", "GET"]
+    allow_origins                        = ["*"]
+    allow_headers                        = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
+    fail_on_warnings                     = false
+    create_domain_name                   = false
+  }
+}
