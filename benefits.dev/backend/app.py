@@ -10,10 +10,11 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Configure CORS to be more flexible for production
+# Configure CORS with environment variable
+allowed_origins = os.getenv('ALLOWED_ORIGINS', '*').split(',')
 CORS(app, resources={
     r"/*": {
-        "origins": ["*"],  # In production, you should specify your actual frontend domain
+        "origins": allowed_origins,
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
@@ -22,6 +23,7 @@ CORS(app, resources={
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@postgres:5432/benefits_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
 
 # Security headers
 @app.after_request
@@ -83,4 +85,4 @@ if __name__ == '__main__':
     # Get port from environment variable or default to 5000
     port = int(os.getenv('PORT', 5000))
     # Run on all network interfaces
-    app.run(host='0.0.0.0', port=port, debug=False) 
+    app.run(host='0.0.0.0', port=port, debug=os.getenv('FLASK_ENV') == 'development') 
