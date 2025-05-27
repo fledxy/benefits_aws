@@ -5,7 +5,7 @@ metadata:
   labels:
     app: backend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: backend
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: trinhthienbao/benefits-backend:latest
+        image: fledxy/fledxy_application
         ports:
         - containerPort: 5000
         env:

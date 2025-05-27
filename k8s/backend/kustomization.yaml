@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
 - deployment.yaml
 - service.yaml
+
 images:
 - name: fledxy/fledxy_application
   newName: fledxy/benefits-backend
