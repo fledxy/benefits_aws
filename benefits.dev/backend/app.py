@@ -8,6 +8,15 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+def get_database_url():
+    """
+    Get database URL from environment variable or use default value
+    Returns:
+        str: Database connection URL
+    """
+    default_url = 'postgresql://postgres:postgres@postgres:5432/benefits_db'
+    return os.getenv('DATABASE_URL', default_url)
+
 app = Flask(__name__)
 # Configure CORS to allow requests from multiple origins
 CORS(app, resources={r"/*": {
@@ -21,7 +30,7 @@ CORS(app, resources={r"/*": {
 }})
 
 # Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@postgres:5432/benefits_db')
+app.config['SQLALCHEMY_DATABASE_URI'] = get_database_url()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
