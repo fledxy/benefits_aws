@@ -10,7 +10,7 @@ load_dotenv()
 
 app = Flask(__name__)
 # Configure CORS to allow requests from frontend
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000"]}})
+CORS(app, resources={r"/*": {"origins": ["http://0.0.0.0:3000"]}})
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@postgres:5432/benefits_db')
@@ -64,4 +64,4 @@ def create_log():
     return jsonify(new_log.to_dict()), 201
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    app.run(host='0.0.0.0', debug=True, port=5000) 

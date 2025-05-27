@@ -37,7 +37,6 @@ ingress:
 persistence:
   enabled: true
   storageClass: ""
-  size: 1Gi
   hostPath:
     path: /mnt/data/postgres
     type: DirectoryOrCreate
@@ -60,7 +59,6 @@ postgresql:
 initContainer:
   enabled: true
   image: busybox
-  command: ["sh", "-c", "mkdir -p /var/lib/postgresql/data && chmod 700 /var/lib/postgresql/data"]
 
 config:
   max_connections: 100
