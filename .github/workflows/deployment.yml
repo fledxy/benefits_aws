@@ -128,7 +128,7 @@ jobs:
             
             # Create the database connection secret
             kubectl create secret generic postgres-secret \
-              --from-literal=database-url="postgresql://benefits:postgres@postgres-service:5432/benefits_db" \
+              --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" \
               --namespace benefits-${{ github.ref_name }} \
               --dry-run=client -o yaml | kubectl apply -f -
         
