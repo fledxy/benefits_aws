@@ -127,10 +127,7 @@ jobs:
             kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s --namespace benefits-${{ github.ref_name }} || true
             
             # Create the database connection secret
-            kubectl create secret generic postgres-secret \
-              --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" \
-              --namespace benefits-${{ github.ref_name }} \
-              --dry-run=client -o yaml | kubectl apply -f -
+            kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" -n benefits-dev
         
         - name: Deploy Backend using Kustomize
           run: |
