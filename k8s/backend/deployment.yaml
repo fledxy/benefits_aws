@@ -5,7 +5,7 @@ metadata:
   labels:
     app: backend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backend
@@ -16,35 +16,31 @@ spec:
     spec:
       containers:
       - name: backend
-        image: fledxy/benefits-backend:latest
+        image: trinhthienbao/benefits-backend:latest
         ports:
         - containerPort: 5000
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: postgres-secret
+              name: db-secrets
               key: database-url
         resources:
-          limits:
-            cpu: "200m"
-            memory: "256Mi"
           requests:
-            cpu: "100m"
             memory: "128Mi"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 5000
-          initialDelaySeconds: 15
-          periodSeconds: 20
-          timeoutSeconds: 1
-          failureThreshold: 3
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
         readinessProbe:
           httpGet:
             path: /
             port: 5000
           initialDelaySeconds: 5
           periodSeconds: 10
-          timeoutSeconds: 1
-          failureThreshold: 3 
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 20 
