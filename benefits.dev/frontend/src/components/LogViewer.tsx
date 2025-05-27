@@ -15,8 +15,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import LogForm from './LogForm';
-
-const API_URL = 'http://127.0.0.1:5000/api';
+import config from '../config';
 
 const LogViewer: React.FC = () => {
   const [logs, setLogs] = useState<any[]>([]);
@@ -26,7 +25,7 @@ const LogViewer: React.FC = () => {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/logs`);
+      const response = await axios.get(`${config.apiUrl}/logs`);
       setLogs(response.data);
       setError(null);
     } catch (err) {

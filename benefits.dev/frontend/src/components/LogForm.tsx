@@ -12,6 +12,7 @@ import {
   Alert,
 } from '@mui/material';
 import axios from 'axios';
+import config from '../config';
 
 interface LogFormProps {
   onLogAdded: () => void;
@@ -26,7 +27,7 @@ const LogForm: React.FC<LogFormProps> = ({ onLogAdded }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:5000/api/logs', {
+      await axios.post(`${config.apiUrl}/logs`, {
         message,
         level,
       });
