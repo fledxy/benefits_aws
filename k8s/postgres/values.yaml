@@ -6,10 +6,7 @@ image:
     tag: latest
     pullPolicy: IfNotPresent
 
-
 imagePullSecrets: []
-
-namespace: ""
 
 podSecurityContext:
   fsGroup: 999
@@ -18,7 +15,7 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  readOnlyRootFilesystem: true
+  readOnlyRootFilesystem: false
   runAsNonRoot: true
   runAsUser: 999
 
@@ -39,8 +36,8 @@ ingress:
 
 persistence:
   enabled: true
-  storageClass: "gp2"
-  size: 8Gi
+  storageClass: "gp3"
+  size: 1Gi
   accessMode: ReadWriteOnce
 
 resources:

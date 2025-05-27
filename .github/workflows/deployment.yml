@@ -109,17 +109,27 @@ jobs:
         - name: Create DockerHub secret
           run: |
              kubectl create secret docker-registry dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN}} --docker-email=trinhbao2000@gmail.com --namespace benefits-${{ github.ref_name }}
+        - name: Install EBS CSI Driver
+          run: |
+            helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+            helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver
 
         - name: Deploy PostgreSQL using Helm
           run: |
             helm uninstall postgres --namespace benefits-${{ github.ref_name }} || true
             helm install postgres k8s/postgres -f k8s/postgres/values.yaml --namespace benefits-${{ github.ref_name }}
+            
+        - name: Create database connection secret
+          run: |
+            # Wait for PostgreSQL pod to be ready
+            kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s --namespace benefits-${{ github.ref_name }} || true
+            
+            # Create the database connection secret
+            kubectl create secret generic postgres-secret \
+              --from-literal=database-url="postgresql://benefits:postgres@postgres-service:5432/benefits_db" \
+              --namespace benefits-${{ github.ref_name }} \
+              --dry-run=client -o yaml | kubectl apply -f -
         
-        # - name: Deploy Kubernetes
-        #   run: |
-        #     kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
-        #     kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
-        #     kubectl apply -f k8s/service.yaml --namespace benefits-${{ github.ref_name }}
 
         - name: Deploy Frontend using Kustomize
           run: |
