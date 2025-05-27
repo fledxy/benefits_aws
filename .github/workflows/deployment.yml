@@ -132,7 +132,13 @@ jobs:
               --namespace benefits-${{ github.ref_name }} \
               --dry-run=client -o yaml | kubectl apply -f -
         
-
+        - name: Deploy Backend using Kustomize
+          run: |
+            cd k8s/backend
+            kustomize edit set namespace benefits-${{ github.ref_name }}
+            kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
+            kubectl apply -k .
+            
         - name: Deploy Frontend using Kustomize
           run: |
             cd k8s/frontend
@@ -140,12 +146,6 @@ jobs:
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-frontend:${{ github.sha }}
             kubectl apply -k .
             
-        - name: Deploy Backend using Kustomize
-          run: |
-            cd k8s/backend
-            kustomize edit set namespace benefits-${{ github.ref_name }}
-            kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
-            kubectl apply -k .
         
         - name: Deploy Ingress
           run: kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
