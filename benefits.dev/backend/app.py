@@ -9,30 +9,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-
-# Configure CORS with environment variable
-allowed_origins = os.getenv('ALLOWED_ORIGINS', '*').split(',')
-CORS(app, resources={
-    r"/*": {
-        "origins": allowed_origins,
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
-    }
-})
+# Configure CORS to allow requests from multiple origins
+CORS(app, resources={r"/*": {
+    "origins": [
+        "http://0.0.0.0:3000",
+        "http://localhost:3000",
+        os.getenv('FRONTEND_URL', 'http://localhost:3000')
+    ],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "allow_headers": ["Content-Type", "Authorization"]
+}})
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@postgres:5432/benefits_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
-
-# Security headers
-@app.after_request
-def add_security_headers(response):
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    return response
 
 db = SQLAlchemy(app)
 
@@ -82,7 +72,5 @@ def create_log():
     return jsonify(new_log.to_dict()), 201
 
 if __name__ == '__main__':
-    # Get port from environment variable or default to 5000
-    port = int(os.getenv('PORT', 5000))
-    # Run on all network interfaces
-    app.run(host='0.0.0.0', port=port, debug=os.getenv('FLASK_ENV') == 'development') 
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', debug=debug_mode, port=int(os.getenv('PORT', 5000))) 

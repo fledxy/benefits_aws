@@ -142,7 +142,7 @@ jobs:
             
         - name: Deploy Backend using Kustomize
           run: |
-            cd ../backend 
+            cd k8s/backend
             kustomize edit set namespace benefits-${{ github.ref_name }}
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
             kubectl apply -k .
