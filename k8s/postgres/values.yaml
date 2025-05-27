@@ -3,7 +3,7 @@ replicaCount: 2
 
 image:
     repository: postgres
-    tag: latest
+    tag: "15"
     pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -36,8 +36,10 @@ ingress:
 
 persistence:
   enabled: true
-  storageClass: "gp2"
-  size: 1Gi
+  storageClass: ""
+  hostPath:
+    path: /mnt/data/postgres
+    type: DirectoryOrCreate
   accessMode: ReadWriteOnce
 
 resources:
@@ -53,6 +55,11 @@ postgresql:
   username: benefits
   password: postgres
   port: 5432
+
+initContainer:
+  enabled: true
+  image: busybox
+  command: ["sh", "-c", "mkdir -p /var/lib/postgresql/data && chmod 700 /var/lib/postgresql/data"]
 
 config:
   max_connections: 100

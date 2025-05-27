@@ -147,6 +147,12 @@ jobs:
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
             kubectl apply -k .
         
+        - name: Deploy Ingress
+          run: kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
+
+        - name: Deploy Network Policies
+          run: |
+            kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
 
         
 
