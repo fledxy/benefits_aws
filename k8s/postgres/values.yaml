@@ -37,6 +37,7 @@ ingress:
 persistence:
   enabled: true
   storageClass: ""
+  size: 1Gi
   hostPath:
     path: /mnt/data/postgres
     type: DirectoryOrCreate
