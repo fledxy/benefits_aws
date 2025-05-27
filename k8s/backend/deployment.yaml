@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: fledxy/benefits-backend:b45571035c56a6374e59bb68e1333bd0016c7793
+        image: fledxy/benefits-backend:latest
         ports:
         - containerPort: 5000
         env:
