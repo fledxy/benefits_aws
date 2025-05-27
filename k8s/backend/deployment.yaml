@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: fledxy/fledxy_application
+        image: fledxy/benefits-backend:b45571035c56a6374e59bb68e1333bd0016c7793
         ports:
         - containerPort: 5000
         env:
@@ -38,9 +38,13 @@ spec:
             port: 5000
           initialDelaySeconds: 5
           periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 3
         livenessProbe:
           httpGet:
             path: /health
             port: 5000
           initialDelaySeconds: 15
-          periodSeconds: 20 
+          periodSeconds: 20
+          timeoutSeconds: 1
+          failureThreshold: 3 
