@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: fledxy_application
+        image: fledxy/benefits-backend:latest
         ports:
         - containerPort: 5000
         env:
@@ -26,25 +26,25 @@ spec:
               name: postgres-secret
               key: database-url
         resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
           limits:
-            memory: "256Mi"
             cpu: "200m"
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 5000
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 1
-          failureThreshold: 3
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
         livenessProbe:
           httpGet:
             path: /
             port: 5000
           initialDelaySeconds: 15
           periodSeconds: 20
+          timeoutSeconds: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
           timeoutSeconds: 1
           failureThreshold: 3 

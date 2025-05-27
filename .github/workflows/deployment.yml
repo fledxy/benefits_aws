@@ -106,9 +106,9 @@ jobs:
           run: |
             kubectl create namespace benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
             
-        - name: Create DockerHub secret
-          run: |
-             kubectl create secret docker-registry dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN}} --docker-email=trinhbao2000@gmail.com --namespace benefits-${{ github.ref_name }}
+        # - name: Create DockerHub secret
+        #   run: |
+        #      kubectl create secret docker-registry dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN}} --docker-email=trinhbao2000@gmail.com --namespace benefits-${{ github.ref_name }}
 
         - name: Install EBS CSI Driver
           run: |
@@ -142,7 +142,7 @@ jobs:
             
         - name: Deploy Backend using Kustomize
           run: |
-            cd k8s/backend
+            cd ../backend 
             kustomize edit set namespace benefits-${{ github.ref_name }}
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
             kubectl apply -k .
