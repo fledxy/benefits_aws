@@ -7,7 +7,7 @@ def try_connect():
             dbname="benefits_db",  # Kết nối đến database mặc định
             user="benefits",    # Sử dụng user postgres
             password="postgres",
-            host="0.0.0.0",
+            host="postgres",
             port="5432"
         )
         print("Successfully connected to database")
