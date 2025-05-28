@@ -19,7 +19,7 @@ def get_database_url():
     Returns:
         str: Database connection URL
     """
-    default_url = 'postgresql://postgres:postgres@postgres:5432/benefits_db'
+    default_url = 'postgresql://postgres:postgres@localhost:5432/benefits_db'
     db_url = os.getenv('DATABASE_URL', default_url)
     logger.info(f"Using database URL: {db_url}")
     return db_url
