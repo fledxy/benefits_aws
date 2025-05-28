@@ -58,7 +58,7 @@ postgresql:
 
 initContainer:
   enabled: true
-  image: fledxy/postgres:0.1.0
+  image: bitnami/postgresql:15
 
 config:
   max_connections: 100
