@@ -25,13 +25,9 @@ def get_database_url():
     return db_url
 
 app = Flask(__name__)
-# Configure CORS to allow requests from multiple origins
+# Configure CORS to allow requests from all origins
 CORS(app, resources={r"/*": {
-    "origins": [
-        "http://0.0.0.0:3000",
-        "http://localhost:3000",
-        os.getenv('FRONTEND_URL', 'http://localhost:3000')
-    ],
+    "origins": "*",
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "allow_headers": ["Content-Type", "Authorization"]
 }})

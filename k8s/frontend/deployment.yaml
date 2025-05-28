@@ -21,7 +21,10 @@ spec:
         - containerPort: 80
         env:
         - name: REACT_APP_API_URL
-          value: "http://backend-service:5000/api"
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: REACT_APP_API_URL
         resources:
           requests:
             memory: "64Mi"

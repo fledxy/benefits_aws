@@ -1,5 +1,5 @@
 # Build stage
-FROM node:16-alpine as builder
+FROM --platform=linux/amd64 node:16-alpine as builder
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM --platform=linux/amd64 nginx:alpine
 
 # Copy the built files from builder stage
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html

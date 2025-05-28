@@ -46,8 +46,26 @@ jobs:
          run: |
              docker tag fledxy/benefits-backend:${{ github.sha }} fledxy/benefits-backend:latest
              docker tag fledxy/benefits-frontend:${{ github.sha }} fledxy/benefits-frontend:latest
+             
+  check-cluster:
+    runs-on: ubuntu-latest
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - name: Check if EKS Cluster Exists
+        id: check
+        run: |
+          CLUSTER_STATUS=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }} --query "cluster.status" --output text 2>/dev/null || echo "NOT_FOUND")
+          if [ "$CLUSTER_STATUS" == "ACTIVE" ]; then
+            echo "Cluster exists, skipping infra deployment."
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "Cluster does not exist, proceeding with infra deployment."
+            echo "exists=false" >> $GITHUB_ENV
 
   deploy-infra:
+    needs: check-cluster
+    if: needs.check-cluster.outputs.exists == 'false'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -119,6 +137,7 @@ jobs:
 
         - name: Deploy PostgreSQL using Helm
           run: |
+          
             helm uninstall postgres --namespace benefits-${{ github.ref_name }} || true
             helm install postgres k8s/postgres -f k8s/postgres/values.yaml --namespace benefits-${{ github.ref_name }}
             
@@ -128,7 +147,7 @@ jobs:
             kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s --namespace benefits-${{ github.ref_name }} || true
             
             # Create the database connection secret
-            kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" -n benefits-dev
+            kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@0.0.0.0:5432/benefits_db" -n benefits-dev
         
         - name: Deploy Backend using Kustomize
           run: |
