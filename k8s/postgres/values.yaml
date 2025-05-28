@@ -36,10 +36,7 @@ ingress:
 
 persistence:
   enabled: true
-  storageClass: ""
-  hostPath:
-    path: /mnt/data/postgres
-    type: DirectoryOrCreate
+  emptyDir: {}
   accessMode: ReadWriteOnce
 
 resources:

@@ -21,10 +21,7 @@ spec:
         - containerPort: 5000
         env:
         - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: db-secrets
-              key: database-url
+          value: postgresql://benefits:postgres@postgres:5432/benefits_db
         resources:
           requests:
             memory: "128Mi"

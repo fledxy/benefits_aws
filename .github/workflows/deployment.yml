@@ -111,11 +111,11 @@ jobs:
         #   run: |
         #      kubectl create secret docker-registry dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN}} --docker-email=trinhbao2000@gmail.com --namespace benefits-${{ github.ref_name }}
 
-        # - name: Install EBS CSI Driver
-        #   run: |
-        #     helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
-        #     helm upgrade --install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
-        #       --namespace benefits-${{ github.ref_name }} 
+        - name: Install EBS CSI Driver
+          run: |
+            helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+            helm upgrade --install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
+              --namespace benefits-${{ github.ref_name }} 
 
         - name: Deploy PostgreSQL using Helm
           run: |
@@ -125,7 +125,7 @@ jobs:
             
         - name: Create database connection secret
           run: |
-            kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@0.0.0.0:5432/benefits_db" -n benefits-dev
+            kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" -n benefits-dev
         
         - name: Deploy Backend using Kustomize
           run: |
