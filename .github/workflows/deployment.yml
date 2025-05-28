@@ -150,6 +150,27 @@ jobs:
         - name: Deploy Network Policies
           run: |
             kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
+  monitoring:
+    runs-on: ubuntu-latest
 
-        
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v1
+      
+      - name: Configure ArgoCD
+        run: |
+          kubectl create namespace argocd || true
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+          kubectl get pods -n argocd
+          kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
+
+      - name: Install Prometheus and Grafana using Helm
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm install prometheus prometheus-community/prometheus --namespace monitoring --create-namespace
+          helm install grafana grafana/grafana --namespace monitoring --set persistence.enabled=true,persistence.size=10Gi,persistence.storageClassName=gp2
 
