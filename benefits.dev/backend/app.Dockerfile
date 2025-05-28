@@ -34,5 +34,5 @@ RUN chown -R appuser:appgroup /app && chmod -R 755 /app
 USER appuser
 
 # Set the entrypoint and command
-ENTRYPOINT [ "python3" ]
-CMD [ "app.api/main.py" ]
+ENTRYPOINT ["gunicorn"]
+CMD ["--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "app:app"]
