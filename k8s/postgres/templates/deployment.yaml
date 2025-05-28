@@ -22,7 +22,7 @@ spec:
       {{- if .Values.initContainer.enabled }}
       initContainers:
         - name: init-dir
-          image: {{ .Values.initContainer.helmValues.initContainer.image }}
+          image: {{ .Values.initContainer}}
           command: ["/bin/sh"]
           args: ["-c", "mkdir -p /var/lib/postgresql/data && chmod 700 /var/lib/postgresql/data"]
           volumeMounts:
