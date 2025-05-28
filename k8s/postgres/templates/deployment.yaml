@@ -25,6 +25,9 @@ spec:
           image: {{ .Values.initContainer.image }}
           command: ["/bin/sh"]
           args: ["-c", "mkdir -p /var/lib/postgresql/data && chmod 700 /var/lib/postgresql/data"]
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql
@@ -50,9 +53,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: data
-          hostPath:
-            path: {{ .Values.persistence.hostPath.path }}
-            type: {{ .Values.persistence.hostPath.type }}
+          emptyDir: {}
         - name: config
           configMap:
             name: {{ include "postgres.fullname" . }}-config
