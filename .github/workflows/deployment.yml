@@ -45,27 +45,9 @@ jobs:
        - name: Tag Docker image as latest
          run: |
              docker tag fledxy/benefits-backend:${{ github.sha }} fledxy/benefits-backend:latest
-             docker tag fledxy/benefits-frontend:${{ github.sha }} fledxy/benefits-frontend:latest
-             
-  check-cluster:
-    runs-on: ubuntu-latest
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - name: Check if EKS Cluster Exists
-        id: check
-        run: |
-          CLUSTER_STATUS=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }} --query "cluster.status" --output text 2>/dev/null || echo "NOT_FOUND")
-          if [ "$CLUSTER_STATUS" == "ACTIVE" ]; then
-            echo "Cluster exists, skipping infra deployment."
-            echo "exists=true" >> $GITHUB_ENV
-          else
-            echo "Cluster does not exist, proceeding with infra deployment."
-            echo "exists=false" >> $GITHUB_ENV
 
   deploy-infra:
-    needs: check-cluster
-    if: needs.check-cluster.outputs.exists == 'false'
+
     runs-on: ubuntu-latest
     defaults:
       run:
