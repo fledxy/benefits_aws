@@ -21,7 +21,7 @@ WORKDIR /app
 
 # Copy and install dependencies securely
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt gunicorn
 
 # Copy the rest of the application files
 COPY . .
@@ -34,5 +34,5 @@ RUN chown -R appuser:appgroup /app && chmod -R 755 /app
 USER appuser
 
 # Set the entrypoint and command
-ENTRYPOINT ["python3"]
-CMD ["app.py"]
+ENTRYPOINT ["gunicorn"]
+CMD ["--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "app:app"]

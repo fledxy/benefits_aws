@@ -4,6 +4,11 @@ from flask_cors import CORS
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -15,7 +20,9 @@ def get_database_url():
         str: Database connection URL
     """
     default_url = 'postgresql://postgres:postgres@postgres:5432/benefits_db'
-    return os.getenv('DATABASE_URL', default_url)
+    db_url = os.getenv('DATABASE_URL', default_url)
+    logger.info(f"Using database URL: {db_url}")
+    return db_url
 
 app = Flask(__name__)
 # Configure CORS to allow requests from multiple origins
@@ -82,4 +89,6 @@ def create_log():
 
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    app.run(host='0.0.0.0', debug=debug_mode, port=int(os.getenv('PORT', 5000))) 
+    port = int(os.getenv('PORT', 5000))
+    logger.info(f"Starting Flask application on port {port} (debug={debug_mode})")
+    app.run(host='0.0.0.0', debug=debug_mode, port=port) 
