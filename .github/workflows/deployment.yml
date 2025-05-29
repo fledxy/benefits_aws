@@ -45,6 +45,9 @@ jobs:
        - name: Tag Docker image as latest
          run: |
              docker tag fledxy/benefits-backend:${{ github.sha }} fledxy/benefits-backend:latest
+             docker push fledxy/benefits-backend:latest
+             docker tag fledxy/benefits-frontend:${{ github.sha }} fledxy/benefits-frontend:latest
+             docker push fledxy/benefits-frontend:latest
 
   deploy-infra:
 
@@ -125,13 +128,34 @@ jobs:
             
         - name: Create database connection secret
           run: |
-            kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" -n benefits-dev
+            kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" -n benefits-${{ github.ref_name }}
         
         - name: Deploy Backend using Kustomize
           run: |
             cd k8s/backend
             kustomize edit set namespace benefits-${{ github.ref_name }}
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
+            
+            # Set domain based on branch
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              DOMAIN="fledxy.com"
+            else
+              DOMAIN="dev.fledxy.com"
+            fi
+            
+            # Create backend configmap
+            kubectl create configmap backend-config \
+              --from-literal=FLASK_ENV=production \
+              --from-literal=FLASK_DEBUG=false \
+              --from-literal=PORT=5000 \
+              --from-literal=DB_NAME=benefits_db \
+              --from-literal=DB_USER=benefits \
+              --from-literal=DB_PASSWORD=postgres \
+              --from-literal=DB_HOST=postgres \
+              --from-literal=DB_PORT=5432 \
+              --from-literal=CORS_ORIGINS=https://benefits.$DOMAIN \
+              -n benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
+              
             kubectl apply -k .
             
         - name: Deploy Frontend using Kustomize
@@ -139,6 +163,18 @@ jobs:
             cd k8s/frontend
             kustomize edit set namespace benefits-${{ github.ref_name }}
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-frontend:${{ github.sha }}
+            
+            # Create frontend configmap
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              DOMAIN="fledxy.com"
+            else
+              DOMAIN="dev.fledxy.com"
+            fi
+            
+            kubectl create configmap frontend-config \
+              --from-literal=DOMAIN=$DOMAIN \
+              -n benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
+              
             kubectl apply -k .
         
         - name: Deploy Ingress
