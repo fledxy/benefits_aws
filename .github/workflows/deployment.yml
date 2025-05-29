@@ -109,12 +109,6 @@ jobs:
           run: |
             kubectl create namespace benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
             
-        - name: Install EBS CSI Driver
-          run: |
-            helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
-            helm upgrade --install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
-              --namespace benefits-${{ github.ref_name }} 
-
         - name: Deploy PostgreSQL using Helm
           run: |
             helm uninstall postgres --namespace benefits-${{ github.ref_name }} || true
