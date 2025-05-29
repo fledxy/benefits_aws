@@ -174,27 +174,131 @@ jobs:
             # Apply ingress and network policy
             kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
             kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
-  # monitoring:
-  #   runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
+  monitoring:
+    needs: [build, deploy-infra, deploy-to-eks]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-  #     - name: Setup Helm
-  #       uses: azure/setup-helm@v1
-      
-  #     - name: Configure ArgoCD
-  #       run: |
-  #         kubectl create namespace argocd || true
-  #         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-  #         kubectl get pods -n argocd
-  #         kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Install Prometheus and Grafana using Helm
-  #       run: |
-  #         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  #         helm repo update
-  #         helm install prometheus prometheus-community/prometheus --namespace monitoring --create-namespace
-  #         helm install grafana grafana/grafana --namespace monitoring --set persistence.enabled=true,persistence.size=10Gi,persistence.storageClassName=gp2
+      - name: Update kube config
+        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
+      - name: Create monitoring namespace
+        run: kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Add Helm repositories
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+          helm repo add elastic https://helm.elastic.co
+          helm repo add fluent https://fluent.github.io/helm-charts
+          helm repo update
+
+      - name: Create Grafana admin credentials
+        run: |
+          kubectl create secret generic grafana-admin-credentials \
+            --from-literal=admin-user=admin \
+            --from-literal=admin-password=${{ secrets.GRAFANA_ADMIN_PASSWORD }} \
+            -n monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create Elasticsearch credentials
+        run: |
+          kubectl create secret generic elasticsearch-credentials \
+            --from-literal=username=elastic \
+            --from-literal=password=${{ secrets.ELASTICSEARCH_PASSWORD }} \
+            -n monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Install Elasticsearch
+        run: |
+          helm upgrade --install elasticsearch elastic/elasticsearch \
+            -f k8s/monitoring/values/elasticsearch-values.yaml \
+            --namespace monitoring
+
+      - name: Wait for Elasticsearch to be ready
+        run: |
+          kubectl wait --for=condition=ready pod -l app=elasticsearch-master -n monitoring --timeout=300s
+
+      - name: Install Kibana
+        run: |
+          helm upgrade --install kibana elastic/kibana \
+            -f k8s/monitoring/values/kibana-values.yaml \
+            --namespace monitoring
+
+      - name: Install Filebeat
+        run: |
+          helm upgrade --install filebeat elastic/filebeat \
+            -f k8s/monitoring/values/filebeat-values.yaml \
+            --namespace monitoring
+
+      - name: Install Prometheus Stack
+        run: |
+          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+            -f k8s/monitoring/values/prometheus-values.yaml \
+            --namespace monitoring
+
+      - name: Install Grafana
+        run: |
+          helm upgrade --install grafana grafana/grafana \
+            -f k8s/monitoring/values/grafana-values.yaml \
+            --namespace monitoring
+
+      - name: Install Loki
+        run: |
+          helm upgrade --install loki grafana/loki \
+            -f k8s/monitoring/values/loki-values.yaml \
+            --namespace monitoring
+
+      - name: Install Fluent Bit
+        run: |
+          helm upgrade --install fluent-bit fluent/fluent-bit \
+            -f k8s/monitoring/values/fluent-bit-values.yaml \
+            --namespace monitoring
+
+      - name: Install Jaeger
+        run: |
+          helm upgrade --install jaeger jaegertracing/jaeger \
+            -f k8s/monitoring/values/jaeger-values.yaml \
+            --namespace monitoring
+
+      - name: Create monitoring ingress
+        run: |
+          # Set domain based on branch
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            DOMAIN="fledxy.com"
+          else
+            DOMAIN="dev.fledxy.com"
+          fi
+          
+          # Replace domain in ingress configuration
+          sed -i "s/\$(DOMAIN)/$DOMAIN/g" k8s/monitoring/ingress.yaml
+          
+          # Apply ingress configuration
+          kubectl apply -f k8s/monitoring/ingress.yaml -n monitoring
+
+      - name: Wait for monitoring stack to be ready
+        run: |
+          kubectl wait --for=condition=available --timeout=300s deployment/prometheus-operator -n monitoring
+          kubectl wait --for=condition=available --timeout=300s deployment/grafana -n monitoring
+          kubectl wait --for=condition=available --timeout=300s deployment/loki -n monitoring
+          kubectl wait --for=condition=available --timeout=300s deployment/jaeger-operator -n monitoring
+          kubectl wait --for=condition=available --timeout=300s deployment/kibana -n monitoring
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=fluent-bit -n monitoring --timeout=300s
+
+      - name: Verify monitoring endpoints
+        run: |
+          echo "Monitoring stack deployed successfully!"
+          echo "Grafana: https://grafana.$DOMAIN"
+          echo "Prometheus: https://prometheus.$DOMAIN"
+          echo "Jaeger: https://jaeger.$DOMAIN"
+          echo "Kibana: https://kibana.$DOMAIN"
+  

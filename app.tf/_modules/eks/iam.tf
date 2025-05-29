@@ -67,6 +67,30 @@ resource "aws_iam_role_policy_attachment" "node-AmazonEC2ContainerRegistryReadOn
   role       = aws_iam_role.node.name
 }
 
+# Add EBS CSI Driver policy
+resource "aws_iam_role_policy" "node-ebs-csi-policy" {
+  name = "${var.cluster_name}-${local.identify}-ebs-csi-policy"
+  role = aws_iam_role.node.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateVolume",
+          "ec2:DeleteVolume",
+          "ec2:AttachVolume",
+          "ec2:DetachVolume",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeInstances"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_instance_profile" "node" {
   name = "${var.cluster_name}-${local.identify}-eks-node-instance-profile"
   role = aws_iam_role.node.name

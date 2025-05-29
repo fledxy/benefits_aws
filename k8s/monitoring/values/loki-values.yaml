@@ -1,0 +1,45 @@
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: filesystem
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: gp2
+
+promtail:
+  config:
+    lokiAddress: http://loki-gateway:80
+    snippets:
+      extraScrapeConfigs:
+        - job_name: kubernetes-pods
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            - source_labels:
+                - __meta_kubernetes_pod_annotation_kubernetes_io_config_mirror
+              action: drop
+              regex: true
+            - source_labels:
+                - __meta_kubernetes_pod_label_app_kubernetes_io_name
+              action: replace
+              target_label: app
+            - source_labels:
+                - __meta_kubernetes_pod_label_app_kubernetes_io_instance
+              action: replace
+              target_label: instance
+            - source_labels:
+                - __meta_kubernetes_pod_label_app_kubernetes_io_component
+              action: replace
+              target_label: component
+            - source_labels:
+                - __meta_kubernetes_pod_container_name
+                - __meta_kubernetes_pod_label_app_kubernetes_io_component
+                - __meta_kubernetes_pod_label_app_kubernetes_io_instance
+                - __meta_kubernetes_pod_label_app_kubernetes_io_name
+              action: replace
+              regex: ^(.+)$
+              target_label: __path__
+              replacement: /var/log/pods/*$1*/$1/*.log 
