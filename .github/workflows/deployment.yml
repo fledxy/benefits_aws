@@ -50,7 +50,6 @@ jobs:
              docker push fledxy/benefits-frontend:latest
 
   deploy-infra:
-
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -110,10 +109,6 @@ jobs:
           run: |
             kubectl create namespace benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
             
-        # - name: Create DockerHub secret
-        #   run: |
-        #      kubectl create secret docker-registry dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN}} --docker-email=trinhbao2000@gmail.com --namespace benefits-${{ github.ref_name }}
-
         - name: Install EBS CSI Driver
           run: |
             helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
@@ -122,7 +117,6 @@ jobs:
 
         - name: Deploy PostgreSQL using Helm
           run: |
-          
             helm uninstall postgres --namespace benefits-${{ github.ref_name }} || true
             helm install postgres k8s/postgres -f k8s/postgres/values.yaml --namespace benefits-${{ github.ref_name }}
             
@@ -143,19 +137,8 @@ jobs:
               DOMAIN="dev.fledxy.com"
             fi
             
-            # Create backend configmap
-            kubectl create configmap backend-config \
-              --from-literal=FLASK_ENV=production \
-              --from-literal=FLASK_DEBUG=false \
-              --from-literal=PORT=5000 \
-              --from-literal=DB_NAME=benefits_db \
-              --from-literal=DB_USER=benefits \
-              --from-literal=DB_PASSWORD=postgres \
-              --from-literal=DB_HOST=postgres \
-              --from-literal=DB_PORT=5432 \
-              --from-literal=CORS_ORIGINS=https://benefits.$DOMAIN \
-              -n benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
-              
+            # Update backend configmap
+            sed -i "s|CORS_ORIGINS:.*|CORS_ORIGINS: \"https://benefits.$DOMAIN\"|" configmap.yaml
             kubectl apply -k .
             
         - name: Deploy Frontend using Kustomize
@@ -164,24 +147,32 @@ jobs:
             kustomize edit set namespace benefits-${{ github.ref_name }}
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-frontend:${{ github.sha }}
             
-            # Create frontend configmap
+            # Set domain based on branch
             if [ "${{ github.ref_name }}" = "main" ]; then
               DOMAIN="fledxy.com"
             else
               DOMAIN="dev.fledxy.com"
             fi
             
-            kubectl create configmap frontend-config \
-              --from-literal=DOMAIN=$DOMAIN \
-              -n benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
-              
+            # Update frontend configmap
+            sed -i "s|DOMAIN:.*|DOMAIN: \"$DOMAIN\"|" configmap.yaml
             kubectl apply -k .
         
-        - name: Deploy Ingress
-          run: kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
-
-        - name: Deploy Network Policies
+        - name: Deploy Ingress and Network Policy
           run: |
+            # Set domain based on branch
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              DOMAIN="fledxy.com"
+            else
+              DOMAIN="dev.fledxy.com"
+            fi
+            
+            # Replace domain in ingress.yaml and network-policy.yaml
+            sed -i "s/\$(DOMAIN)/$DOMAIN/g" k8s/ingress.yaml
+            sed -i "s/\$(DOMAIN)/$DOMAIN/g" k8s/network-policy.yaml
+            
+            # Apply ingress and network policy
+            kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
             kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
   # monitoring:
   #   runs-on: ubuntu-latest
