@@ -1,0 +1,96 @@
+config:
+  service: |
+    [SERVICE]
+        Flush        5
+        Daemon       Off
+        Log_Level    info
+        Parsers_File parsers.conf
+
+  inputs: |
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            docker
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
+
+    [INPUT]
+        Name              systemd
+        Tag               systemd.*
+        Path              /var/log/journal
+        DB                /var/log/flb_systemd.db
+        Systemd_Filter    _SYSTEMD_UNIT=kubelet.service
+        Read_From_Tail    true
+
+  filters: |
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Merge_Log           On
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+
+    [FILTER]
+        Name                modify
+        Match               *
+        Copy               time    @timestamp
+        Add                cluster_name    ${CLUSTER_NAME}
+
+  outputs: |
+    [OUTPUT]
+        Name              loki
+        Match             kube.*
+        Host              loki
+        Port              3100
+        Labels            job=fluent-bit, cluster=${CLUSTER_NAME}
+        Remove_Keys        time
+        Auto_Kubernetes_Labels  on
+
+    [OUTPUT]
+        Name              es
+        Match             *
+        Host              elasticsearch-master
+        Port              9200
+        Index             fluent-bit
+        Type              _doc
+        HTTP_User         ${ES_USER}
+        HTTP_Passwd       ${ES_PASSWORD}
+        tls               On
+        tls.verify        Off
+
+daemonset:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+  securityContext:
+    runAsUser: 0
+    privileged: true
+
+  tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+
+  extraEnvs:
+    - name: CLUSTER_NAME
+      value: ${EKS_CLUSTER_NAME}
+    - name: ES_USER
+      valueFrom:
+        secretKeyRef:
+          name: elasticsearch-credentials
+          key: username
+    - name: ES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: elasticsearch-credentials
+          key: password 
