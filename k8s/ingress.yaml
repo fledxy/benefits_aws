@@ -12,18 +12,13 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
-    cert-manager.io/issuer: prod-issuer
-    cert-manager.io/issuer-kind: OriginIssuer
-    cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
-    external-dns.alpha.kubernetes.io/hostname: benefits-api.fledxy.com
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     alb.ingress.kubernetes.io/scheme: "internet-facing"
     alb.ingress.kubernetes.io/target-type: "ip"
     alb.ingress.kubernetes.io/load-balancer-attributes: "routing.http.drop_invalid_header_fields.enabled=true"
 spec:
   rules:
-  - host: benefits-api.fledxy.com
+  - host: benefits-api.$(DOMAIN)
     http:
       paths:
       - path: /api
@@ -42,5 +37,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - benefits-api.fledxy.com
+    - benefits-api.$(DOMAIN)
     secretName: benefits-api-tls 
