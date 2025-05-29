@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
+  namespace: benefits-dev
   labels:
     app: backend
 spec:
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: fledxy/fledxy_application
+        image: fledxy/benefits-backend:e0f39485a16c60db93f2a82a8edde85f51494e7e
         ports:
         - containerPort: 5000
         envFrom:
@@ -25,21 +26,21 @@ spec:
         - secretRef:
             name: db-secrets
         resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
           limits:
-            memory: "256Mi"
             cpu: "200m"
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 5000
-          initialDelaySeconds: 5
-          periodSeconds: 10
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
         livenessProbe:
           httpGet:
-            path: /health
+            path: /
             port: 5000
           initialDelaySeconds: 15
-          periodSeconds: 20 
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10 
