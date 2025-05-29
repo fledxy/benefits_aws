@@ -3,4 +3,5 @@ kind: ConfigMap
 metadata:
   name: frontend-config
 data:
-  DOMAIN: "dev.fledxy.com" 
+  # DOMAIN: "localhost:5000/api"
+  REACT_APP_API_URL: "http://localhost:5000/api"  
