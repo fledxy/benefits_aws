@@ -83,7 +83,9 @@ resource "aws_iam_role_policy" "node-ebs-csi-policy" {
           "ec2:AttachVolume",
           "ec2:DetachVolume",
           "ec2:DescribeVolumes",
-          "ec2:DescribeInstances"
+          "ec2:DescribeInstances",
+          "ec2:CreateTags",
+          "sts:AssumeRoleWithWebIdentity"
         ]
         Resource = "*"
       }
