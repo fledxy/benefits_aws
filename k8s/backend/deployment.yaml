@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: fledxy/benefits-backend:e0f39485a16c60db93f2a82a8edde85f51494e7e
+        image: fledxy/fledxy_application
         ports:
         - containerPort: 5000
         envFrom:
