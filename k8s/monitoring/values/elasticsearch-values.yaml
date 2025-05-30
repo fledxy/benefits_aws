@@ -1,11 +1,10 @@
 # Elasticsearch configuration
-replicaCount: 1
+replicaCount: 3
 
 esConfig:
   elasticsearch.yml: |
     cluster.name: "benefits-cluster"
     network.host: 0.0.0.0
-    discovery.type: single-node
     xpack.security.enabled: true
 
 resources:
@@ -16,9 +15,9 @@ resources:
     cpu: "500m"
     memory: "1Gi"
 
+# Disable persistence and use emptyDir
 persistence:
-  enabled: true
-  size: 10Gi
+  enabled: false
 
 service:
   type: ClusterIP
@@ -28,10 +27,3 @@ service:
 securityContext:
   runAsUser: 1000
   fsGroup: 1000
-
-# Enable volume expansion
-volumeClaimTemplate:
-  accessModes: [ "ReadWriteOnce" ]
-  resources:
-    requests:
-      storage: 20Gi

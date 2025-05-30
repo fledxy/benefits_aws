@@ -213,7 +213,27 @@ jobs:
           helm upgrade --install elasticsearch elastic/elasticsearch \
             -f k8s/monitoring/values/elasticsearch-values.yaml \
             --namespace monitoring
-            
+
+      - name: Wait for Elasticsearch to be ready
+        run: |
+          echo "Waiting for Elasticsearch to be ready..."
+          sleep 180  # Chờ 3 phút
+
+      - name: Create Kibana service account token
+        run: |
+          # Tạo service account token cho Kibana
+          SERVICE_ACCOUNT_TOKEN=$(kubectl exec -it elasticsearch-master-0 -n monitoring -- curl -X POST "http://localhost:9200/_security/service/elastic/kibana/credential/token/kibana-token" -H "Content-Type: application/json" -u elastic:$(kubectl get secret elasticsearch-master-credentials -n monitoring -o jsonpath='{.data.password}' | base64 -d) | jq -r '.token')
+          
+          # Tạo secret chứa token
+          kubectl create secret generic kibana-service-account-token \
+            --from-literal=token=$SERVICE_ACCOUNT_TOKEN \
+            -n monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Update Kibana configuration
+        run: |
+          # Cập nhật cấu hình Kibana với service account token
+          sed -i "s|elasticsearch.serviceAccountToken:.*|elasticsearch.serviceAccountToken: $SERVICE_ACCOUNT_TOKEN|" k8s/monitoring/values/kibana-values.yaml
+
       - name: Install Kibana
         run: |
           helm upgrade --install kibana elastic/kibana \
