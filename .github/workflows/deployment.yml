@@ -190,8 +190,6 @@ jobs:
       - name: Add Helm repositories
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
           helm repo add elastic https://helm.elastic.co
           helm repo add fluent https://fluent.github.io/helm-charts
           helm repo update
@@ -228,12 +226,6 @@ jobs:
             -f k8s/monitoring/values/prometheus-values.yaml \
             --namespace monitoring
 
-      - name: Install Grafana
-        run: |
-          helm upgrade --install grafana grafana/grafana \
-            -f k8s/monitoring/values/grafana-values.yaml \
-            --namespace monitoring
-
       - name: Install Loki
         run: |
           helm upgrade --install loki grafana/loki \
@@ -244,12 +236,6 @@ jobs:
         run: |
           helm upgrade --install fluent-bit fluent/fluent-bit \
             -f k8s/monitoring/values/fluent-bit-values.yaml \
-            --namespace monitoring
-
-      - name: Install Jaeger
-        run: |
-          helm upgrade --install jaeger jaegertracing/jaeger \
-            -f k8s/monitoring/values/jaeger-values.yaml \
             --namespace monitoring
 
       - name: Create monitoring ingress
@@ -267,20 +253,10 @@ jobs:
           # Apply ingress configuration
           kubectl apply -f k8s/monitoring/ingress.yaml -n monitoring
 
-      - name: Wait for monitoring stack to be ready
-        run: |
-          kubectl wait --for=condition=available --timeout=300s deployment/prometheus-operator -n monitoring
-          kubectl wait --for=condition=available --timeout=300s deployment/grafana -n monitoring
-          kubectl wait --for=condition=available --timeout=300s deployment/loki -n monitoring
-          kubectl wait --for=condition=available --timeout=300s deployment/jaeger-operator -n monitoring
-          kubectl wait --for=condition=available --timeout=300s deployment/kibana -n monitoring
-          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=fluent-bit -n monitoring --timeout=300s
-
       - name: Verify monitoring endpoints
         run: |
           echo "Monitoring stack deployed successfully!"
           echo "Grafana: https://grafana.$DOMAIN"
           echo "Prometheus: https://prometheus.$DOMAIN"
-          echo "Jaeger: https://jaeger.$DOMAIN"
           echo "Kibana: https://kibana.$DOMAIN"
   
