@@ -1,22 +1,24 @@
-elasticsearchHosts: "http://elasticsearch-master:9200"
+# Kibana configuration
+replicaCount: 1
 
 kibanaConfig:
   kibana.yml: |
     server.name: kibana
     server.host: "0.0.0.0"
     elasticsearch.hosts: [ "http://elasticsearch-master:9200" ]
-    xpack.security.enabled: true
-    xpack.reporting.enabled: true
-    xpack.encryptedSavedObjects.encryptionKey: "something_at_least_32_characters_long"
-    xpack.reporting.encryptionKey: "something_at_least_32_characters_long"
+    elasticsearch.serviceAccountToken: ${KIBANA_SERVICE_ACCOUNT_TOKEN}
 
 resources:
   requests:
-    cpu: "500m"
-    memory: "1Gi"
+    cpu: "100m"
+    memory: "256Mi"
   limits:
-    cpu: "1000m"
-    memory: "2Gi"
+    cpu: "200m"
+    memory: "512Mi"
+
+service:
+  type: ClusterIP
+  port: 5601
 
 persistence:
   enabled: true
@@ -28,14 +30,10 @@ securityContext:
       - ALL
   runAsUser: 1000
   runAsNonRoot: true
+  fsGroup: 1000
 
 podSecurityContext:
   fsGroup: 1000
-
-elasticsearchAccount:
-  secret: elasticsearch-credentials
-  userKey: username
-  passwordKey: password
 
 ingress:
   enabled: true
