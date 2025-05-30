@@ -45,9 +45,7 @@ jobs:
        - name: Tag Docker image as latest
          run: |
              docker tag fledxy/benefits-backend:${{ github.sha }} fledxy/benefits-backend:latest
-             docker push fledxy/benefits-backend:latest
              docker tag fledxy/benefits-frontend:${{ github.sha }} fledxy/benefits-frontend:latest
-             docker push fledxy/benefits-frontend:latest
 
   deploy-infra:
     runs-on: ubuntu-latest
