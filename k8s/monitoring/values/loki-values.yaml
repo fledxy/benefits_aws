@@ -6,7 +6,7 @@ loki:
     persistentVolumeClaim:
       enabled: true
       size: 5Gi
-      storageClassName: "gp2-csi"
+      storageClassName: "gp2"
   resources:
     requests:
       cpu: "100m"

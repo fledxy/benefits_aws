@@ -19,7 +19,7 @@ resources:
 persistence:
   enabled: true
   size: 10Gi
-  storageClass: "gp2-csi"
+  storageClass: "gp2"
 
 service:
   type: ClusterIP
@@ -36,4 +36,4 @@ volumeClaimTemplate:
   resources:
     requests:
       storage: 20Gi
-  storageClassName: "gp2-csi" 
+  storageClassName: "gp2" 
