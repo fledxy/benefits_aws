@@ -1,0 +1,39 @@
+# Elasticsearch configuration
+replicaCount: 1
+
+esConfig:
+  elasticsearch.yml: |
+    cluster.name: "benefits-cluster"
+    network.host: 0.0.0.0
+    discovery.type: single-node
+    xpack.security.enabled: false
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: "gp2"
+
+service:
+  type: ClusterIP
+  port: 9200
+
+# Disable security features for development
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+# Enable volume expansion
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: "gp2" 

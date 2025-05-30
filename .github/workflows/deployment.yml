@@ -196,6 +196,7 @@ jobs:
           helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
           helm repo add elastic https://helm.elastic.co
           helm repo add fluent https://fluent.github.io/helm-charts
+          helm repo add prometheus-operator https://prometheus-operator.github.io/helm-charts
           helm repo update
 
       - name: Create Grafana admin credentials
@@ -226,12 +227,6 @@ jobs:
         run: |
           helm upgrade --install kibana elastic/kibana \
             -f k8s/monitoring/values/kibana-values.yaml \
-            --namespace monitoring
-
-      - name: Install Filebeat
-        run: |
-          helm upgrade --install filebeat elastic/filebeat \
-            -f k8s/monitoring/values/filebeat-values.yaml \
             --namespace monitoring
 
       - name: Install Prometheus Stack
