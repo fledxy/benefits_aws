@@ -6,7 +6,7 @@ esConfig:
     cluster.name: "benefits-cluster"
     network.host: 0.0.0.0
     discovery.type: single-node
-    xpack.security.enabled: false
+    xpack.security.enabled: true
 
 resources:
   requests:
@@ -19,13 +19,13 @@ resources:
 persistence:
   enabled: true
   size: 10Gi
-  storageClass: "gp2"
+  storageClass: "gp3-csi"
 
 service:
   type: ClusterIP
   port: 9200
 
-# Disable security features for development
+# Security configuration
 securityContext:
   runAsUser: 1000
   fsGroup: 1000
@@ -35,5 +35,5 @@ volumeClaimTemplate:
   accessModes: [ "ReadWriteOnce" ]
   resources:
     requests:
-      storage: 10Gi
-  storageClassName: "gp2" 
+      storage: 20Gi
+  storageClassName: "gp3-csi" 
