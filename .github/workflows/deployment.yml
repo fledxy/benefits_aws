@@ -215,11 +215,7 @@ jobs:
           helm upgrade --install elasticsearch elastic/elasticsearch \
             -f k8s/monitoring/values/elasticsearch-values.yaml \
             --namespace monitoring
-
-      - name: Wait for Elasticsearch to be ready
-        run: |
-          kubectl wait --for=condition=ready pod -l app=elasticsearch-master -n monitoring --timeout=300s
-
+            
       - name: Install Kibana
         run: |
           helm upgrade --install kibana elastic/kibana \
