@@ -1,0 +1,36 @@
+{{- if .Values.alertmanager.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-alertmanager-config
+  namespace: {{ .Release.Namespace }}
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+      smtp_smarthost: '{{ .Values.alertmanager.config.global.smtp_smarthost }}'
+      smtp_from: '{{ .Values.alertmanager.config.global.smtp_from }}'
+      smtp_auth_username: '{{ .Values.alertmanager.config.global.smtp_auth_username }}'
+      smtp_auth_password: '{{ .Values.alertmanager.config.global.smtp_auth_password }}'
+      smtp_require_tls: true
+
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'email-notifications'
+      routes:
+        - match:
+            severity: critical
+          receiver: 'email-notifications'
+          continue: true
+
+    receivers:
+    - name: 'email-notifications'
+      email_configs:
+      - to: '{{ .Values.alertmanager.config.receivers.email.to }}'
+        send_resolved: true
+        headers:
+          subject: '{{ .Values.alertmanager.config.receivers.email.headers.subject }}'
+{{- end }} 

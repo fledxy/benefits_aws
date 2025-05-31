@@ -167,6 +167,12 @@ jobs:
             kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
             kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
 
+        - name: Install ArgoCD server
+          run: |
+            kubectl create namespace argocd
+            helm repo add argo https://argoproj.github.io/argo-helm
+            helm install argocd argo/argo-cd --namespace argocd   
+            
   monitoring:
     needs: [build, deploy-infra, deploy-to-eks]
     runs-on: ubuntu-latest
@@ -187,78 +193,12 @@ jobs:
       - name: Create monitoring namespace
         run: kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Add Helm repositories
+      - name: Install AWS EBS CSI Driver
         run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add elastic https://helm.elastic.co
-          helm repo add fluent https://fluent.github.io/helm-charts
-          helm repo update
-
-      - name: Create Grafana admin credentials
-        run: |
-          kubectl create secret generic grafana-admin-credentials \
-            --from-literal=admin-user=admin \
-            --from-literal=admin-password=${{ secrets.GRAFANA_ADMIN_PASSWORD }} \
-            -n monitoring --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Create Elasticsearch credentials
-        run: |
-          kubectl create secret generic elasticsearch-credentials \
-            --from-literal=username=elastic \
-            --from-literal=password=${{ secrets.ELASTICSEARCH_PASSWORD }} \
-            -n monitoring --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Install Elasticsearch
-        run: |
-          helm upgrade --install elasticsearch elastic/elasticsearch \
-            -f k8s/monitoring/values/elasticsearch-values.yaml \
-            --namespace monitoring
-
-      - name: Wait for Elasticsearch to be ready
-        run: |
-          echo "Waiting for Elasticsearch to be ready..."
-          sleep 180  # Chờ 3 phút
-
-      - name: Create Kibana service account token
-        run: |
-          # Tạo service account token cho Kibana
-          SERVICE_ACCOUNT_TOKEN=$(kubectl exec -it elasticsearch-master-0 -n monitoring -- curl -X POST "http://localhost:9200/_security/service/elastic/kibana/credential/token/kibana-token" -H "Content-Type: application/json" -u elastic:$(kubectl get secret elasticsearch-master-credentials -n monitoring -o jsonpath='{.data.password}' | base64 -d) | jq -r '.token')
-          
-          # Tạo secret chứa token
-          kubectl create secret generic kibana-service-account-token \
-            --from-literal=token=$SERVICE_ACCOUNT_TOKEN \
-            -n monitoring --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Update Kibana configuration
-        run: |
-          # Cập nhật cấu hình Kibana với service account token
-          sed -i "s|elasticsearch.serviceAccountToken:.*|elasticsearch.serviceAccountToken: $SERVICE_ACCOUNT_TOKEN|" k8s/monitoring/values/kibana-values.yaml
-
-      - name: Install Kibana
-        run: |
-          helm upgrade --install kibana elastic/kibana \
-            -f k8s/monitoring/values/kibana-values.yaml \
-            --namespace monitoring
-
-      - name: Install Prometheus Stack
-        run: |
-          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
-            -f k8s/monitoring/values/prometheus-values.yaml \
-            --namespace monitoring
-
-      - name: Install Loki
-        run: |
-          helm upgrade --install loki grafana/loki \
-            -f k8s/monitoring/values/loki-values.yaml \
-            --namespace monitoring
-
-      - name: Install Fluent Bit
-        run: |
-          helm upgrade --install fluent-bit fluent/fluent-bit \
-            -f k8s/monitoring/values/fluent-bit-values.yaml \
-            --namespace monitoring
-
-      - name: Create monitoring ingress
+          helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+          helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver
+  
+      - name: Update monitoring chart values
         run: |
           # Set domain based on branch
           if [ "${{ github.ref_name }}" = "main" ]; then
@@ -267,16 +207,25 @@ jobs:
             DOMAIN="dev.fledxy.com"
           fi
           
-          # Replace domain in ingress configuration
-          sed -i "s/\$(DOMAIN)/$DOMAIN/g" k8s/monitoring/ingress.yaml
+          # Update values.yaml with environment-specific settings
+          sed -i "s/domain: example.com/domain: $DOMAIN/" k8s/monitoring/values.yaml
+          sed -i "s/grafana.example.com/grafana.$DOMAIN/" k8s/monitoring/values.yaml
           
-          # Apply ingress configuration
-          kubectl apply -f k8s/monitoring/ingress.yaml -n monitoring
+          # Update Grafana admin credentials
+          sed -i "s/admin: admin/admin: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}/" k8s/monitoring/values.yaml
 
-      - name: Verify monitoring endpoints
+      - name: Install monitoring stack
         run: |
-          echo "Monitoring stack deployed successfully!"
-          echo "Grafana: https://grafana.$DOMAIN"
-          echo "Prometheus: https://prometheus.$DOMAIN"
-          echo "Kibana: https://kibana.$DOMAIN"
+          helm upgrade --install monitoring ./k8s/monitoring \
+            --namespace monitoring \
+            --wait \
+            --timeout 10m
+
+      - name: Verify monitoring stack deployment
+        run: |
+          echo "Waiting for pods to be ready..."
+          kubectl wait --for=condition=ready pod -l app=prometheus -n monitoring --timeout=300s
+          kubectl wait --for=condition=ready pod -l app=grafana -n monitoring --timeout=300s
+          kubectl wait --for=condition=ready pod -l app=loki -n monitoring --timeout=300s
+          kubectl wait --for=condition=ready pod -l app=alertmanager -n monitoring --timeout=300s
   
