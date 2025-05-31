@@ -1,0 +1,80 @@
+# Default values for postgres chart
+replicaCount: 2
+
+image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+podSecurityContext:
+  fsGroup: 999
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 999
+
+service:
+  type: ClusterIP
+  port: 5432
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: postgres.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+persistence:
+  enabled: true
+  emptyDir: {}
+  accessMode: ReadWriteOnce
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+postgresql:
+  database: benefits_db
+  username: benefits
+  password: postgres
+  port: 5432
+
+initContainer:
+  enabled: true
+  image: bitnami/postgresql:15
+
+config:
+  max_connections: 100
+  shared_buffers: 256MB
+  effective_cache_size: 768MB
+  maintenance_work_mem: 64MB
+  checkpoint_completion_target: 0.9
+  wal_buffers: 16MB
+  default_statistics_target: 100
+  random_page_cost: 1.1
+  effective_io_concurrency: 200
+  work_mem: 4MB
+  min_wal_size: 1GB
+  max_wal_size: 4GB
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
