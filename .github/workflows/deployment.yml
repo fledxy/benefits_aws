@@ -172,7 +172,7 @@ jobs:
             kubectl create namespace argocd
             helm repo add argo https://argoproj.github.io/argo-helm
             helm install argocd argo/argo-cd --namespace argocd   
-            
+
   monitoring:
     needs: [build, deploy-infra, deploy-to-eks]
     runs-on: ubuntu-latest
@@ -193,11 +193,6 @@ jobs:
       - name: Create monitoring namespace
         run: kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Install AWS EBS CSI Driver
-        run: |
-          helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
-          helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver
-  
       - name: Update monitoring chart values
         run: |
           # Set domain based on branch
