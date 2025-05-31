@@ -191,7 +191,7 @@ jobs:
         run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
       - name: Create monitoring namespace
-        run: kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+        run: kubectl create namespace monitoring
 
       - name: Update monitoring chart values
         run: |
