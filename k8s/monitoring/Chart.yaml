@@ -1,28 +1,17 @@
-name: Monitoring Stack
+apiVersion: v2
+name: monitoring
+description: Monitoring stack (Prometheus, Grafana, Loki, Alertmanager)
 version: 0.1.0
-description: A Helm chart for deploying a monitoring stack including Prometheus, Grafana, Loki, and Alertmanager.
-maintainers:
-  - name: Your Name
-    email: your.email@example.com
-keywords:
-  - monitoring
-  - prometheus
-  - grafana
-  - loki
-  - alertmanager
-home: https://example.com
-sources:
-  - https://github.com/your-repo/monitoring-chart
 dependencies:
   - name: prometheus
-    version: 14.0.0
-    repository: https://charts.bitnami.com/bitnami
+    version: "25.21.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
   - name: grafana
-    version: 6.0.0
-    repository: https://grafana.github.io/helm-charts
+    version: "7.3.9"
+    repository: "https://grafana.github.io/helm-charts"
   - name: loki
-    version: 2.0.0
-    repository: https://grafana.github.io/loki/charts
+    version: "5.41.6"
+    repository: "https://grafana.github.io/helm-charts"
   - name: alertmanager
-    version: 0.22.0
-    repository: https://prometheus-community.github.io/helm-charts
+    version: "1.8.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
