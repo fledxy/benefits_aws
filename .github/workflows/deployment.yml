@@ -209,12 +209,12 @@ jobs:
           # Update Grafana admin credentials
           sed -i "s/admin: admin/admin: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}/" k8s/monitoring/values.yaml
 
-      - name: Install monitoring stack
-        run: |
-          helm upgrade --install monitoring ./k8s/monitoring \
-            --namespace monitoring \
-            --wait \
-            --timeout 10m
+      # - name: Install monitoring stack
+      #   run: |
+      #     helm upgrade --install monitoring ./k8s/monitoring \
+      #       --namespace monitoring \
+      #       --wait \
+      #       --timeout 10m
 
       - name: Verify monitoring stack deployment
         run: |
