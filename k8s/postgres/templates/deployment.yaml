@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "postgres.fullname" . }}
   {{- if .Values.namespace }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ include "postgres.namespace" . }}
   {{- end }}
   labels:
     {{- include "postgres.labels" . | nindent 4 }}

@@ -3,6 +3,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "postgres.fullname" . }}
+  namespace: {{ include "postgres.namespace" . }}
+
   labels:
     {{- include "postgres.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
