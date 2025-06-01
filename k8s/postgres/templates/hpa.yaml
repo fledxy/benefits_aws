@@ -3,8 +3,6 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "postgres.fullname" . }}
-  namespace: {{ include "postgres.namespace" . }}
-
   labels:
     {{- include "postgres.labels" . | nindent 4 }}
 spec:

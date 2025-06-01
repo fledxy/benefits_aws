@@ -144,9 +144,9 @@ jobs:
             
             # Set domain based on branch
             if [ "${{ github.ref_name }}" = "main" ]; then
-              namespace="main"
+              DOMAIN="fledxy.com"
             else
-              namespace="dev"
+              DOMAIN="dev.fledxy.com"
             fi
             
             # Update backend configmap
@@ -161,9 +161,9 @@ jobs:
             
             # Set domain based on branch
             if [ "${{ github.ref_name }}" = "main" ]; then
-              namespace="main"
+              DOMAIN="fledxy.com"
             else
-              namespace="main"
+              DOMAIN="dev.fledxy.com"
             fi
             
             # Update frontend configmap

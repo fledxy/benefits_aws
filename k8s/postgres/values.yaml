@@ -19,7 +19,7 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 999
 
-namespace: benefits-$(namespace)
+namespace: benefits-dev
 
 service:
   type: ClusterIP
