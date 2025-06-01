@@ -19,6 +19,8 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 999
 
+namespace: benefits-$(namespace)
+
 service:
   type: ClusterIP
   port: 5432
