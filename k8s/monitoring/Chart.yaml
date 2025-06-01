@@ -1,6 +1,6 @@
 apiVersion: v2
 name: monitoring
-description: Monitoring stack (Prometheus, Grafana, Loki, Alertmanager)
+description: Grafana monitoring
 version: 0.1.0
 dependencies:
   - name: grafana

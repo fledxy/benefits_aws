@@ -134,11 +134,12 @@ jobs:
             
         - name: Create database connection secret
           run: |
-              kubectl create secret generic postgres-secret -n benefits-dev \
+            # kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" -n benefits-${{ github.ref_name }}
+            kubectl create secret generic db-secrets --from-literal=POSTGRES_DB=benefits_db --from-literal=POSTGRES_USER=benefits --from-literal=POSTGRES_PASSWORD=postgres -n benefits-${{ github.ref_name }}
+            kubectl create secret generic postgres-secret -n benefits-dev \
               --from-literal=POSTGRES_USER=benefits \
               --from-literal=POSTGRES_PASSWORD=postgres \
               --from-literal=POSTGRES_DB=benefits_db
-        
         - name: Deploy Backend using Kustomize
           run: |
             cd k8s/backend
