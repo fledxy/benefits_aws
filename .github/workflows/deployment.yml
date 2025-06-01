@@ -84,6 +84,13 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v3
 
+        - name: Set up JDK 17 
+          uses: actions/setup-java@v3
+          with: 
+            java-version: '17'
+            distribution: 'temurin'
+
+
         - name: Setup Terraform
           uses: hashicorp/setup-terraform@v3
 
@@ -93,6 +100,20 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ secrets.AWS_REGION }} 
+
+        - name: SonarQube Scan
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          run: |
+              wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+              unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+              export PATH="$PATH:$(pwd)/sonar-scanner-5.0.1.3006-linux/bin"
+              sonar-scanner \
+                -Dsonar.projectKey=your_project_key \
+                -Dsonar.organization=your_org \
+                -Dsonar.sources=. \
+                -Dsonar.host.url=https://sonarcloud.io \
+                -Dsonar.login=$SONAR_TOKEN
 
         - name: Access to eks cluster
           run: |
@@ -212,11 +233,8 @@ jobs:
       - name: Install monitoring stack
         run: |
           helm uninstall monitoring --namespace monitoring || true
-          helm upgrade --install monitoring ./k8s/monitoring \
-            --namespace monitoring \
-            --wait \
-            --timeout 10m
-
+          helm upgrade --install monitoring ./k8s/monitoring --namespace monitoring
+      
       - name: Verify monitoring stack deployment
         run: |
           echo "Waiting for pods to be ready..."
