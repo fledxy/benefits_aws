@@ -65,9 +65,6 @@ loki:
     type: filesystem
     persistence:
       enabled: false
-    retention:
-      enabled: true
-      period: "168h"
   limits:
     ingestion_rate_mb: 4
     ingestion_burst_size_mb: 6
@@ -76,6 +73,7 @@ loki:
     max_query_length: 721h
     max_query_parallelism: 32
     cardinality_limit: 100000
+    split_queries_by_interval: 15m
 
 fluentbit:
   enabled: true
