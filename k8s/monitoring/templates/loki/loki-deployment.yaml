@@ -22,6 +22,9 @@ spec:
             - -config.file=/etc/loki/local-config.yaml
           ports:
             - containerPort: 3100
+              name: http
+            - containerPort: 9096
+              name: grpc
           resources:
             limits:
               cpu: "500m"
@@ -34,9 +37,25 @@ spec:
               mountPath: /etc/loki
             - name: loki-data
               mountPath: /loki
+            - name: wal
+              mountPath: /wal
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 45
+            timeoutSeconds: 1
       volumes:
         - name: loki-config
           configMap:
             name: loki-config
         - name: loki-data
+          emptyDir: {}
+        - name: wal
           emptyDir: {} 
