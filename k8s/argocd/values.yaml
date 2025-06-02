@@ -1,6 +1,6 @@
 global:
   environment: production
-  domain: example.com
+  domain: fledxy.com
 
 server:
   name: argocd-server
@@ -17,9 +17,13 @@ server:
       cpu: 200m
       memory: 256Mi
   service:
-    type: ClusterIP
+    type: LoadBalancer
     port: 80
     portHttps: 443
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+      service.beta.kubernetes.io/aws-load-balancer-internal: "false"
+      service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
   ingress:
     enabled: true
     annotations:
@@ -27,12 +31,13 @@ server:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       nginx.ingress.kubernetes.io/ssl-passthrough: "true"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     hosts:
-      - argocd.example.com
+      - argocd.fledxy.com
     tls:
       - secretName: argocd-server-tls
         hosts:
-          - argocd.example.com
+          - argocd.fledxy.com
 
 repoServer:
   name: argocd-repo-server
@@ -67,7 +72,7 @@ configs:
   secret:
     argocdServerAdminPassword: "$2a$10$mz3tF3c5Ux5x5x5x5x5x5O5x5x5x5x5x5x5x5x5x5x5x5x5x5" # bcrypt hash of "admin"
   cm:
-    url: https://argocd.example.com
+    url: https://argocd.fledxy.com
     admin.enabled: "true"
     statusbadge.enabled: "true"
     application.instanceLabelKey: argocd.argoproj.io/instance

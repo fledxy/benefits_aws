@@ -130,16 +130,24 @@ jobs:
         - name: Deploy PostgreSQL using Helm
           run: |
             helm uninstall postgres --namespace benefits-${{ github.ref_name }} || true
-            helm install postgres k8s/postgres -f k8s/postgres/values.yaml --namespace benefits-${{ github.ref_name }}
+            
+            # Install PostgreSQL with dynamic namespace
+            helm install postgres k8s/postgres \
+              --namespace benefits-${{ github.ref_name }} \
+              -f k8s/postgres/values.yaml \
+              --set postgresql.database=benefits_db \
+              --set postgresql.username=benefits \
+              --set postgresql.password=postgres \
+              --set persistence.enabled=true
             
         - name: Create database connection secret
           run: |
-            # kubectl create secret generic db-secrets --from-literal=database-url="postgresql://benefits:postgres@postgres:5432/benefits_db" -n benefits-${{ github.ref_name }}
-            kubectl create secret generic db-secrets --from-literal=POSTGRES_DB=benefits_db --from-literal=POSTGRES_USER=benefits --from-literal=POSTGRES_PASSWORD=postgres -n benefits-${{ github.ref_name }}
-            kubectl create secret generic postgres-secret -n benefits-dev \
+            # Create secrets for database connection
+            kubectl create secret generic db-secrets \
+              --from-literal=POSTGRES_DB=benefits_db \
               --from-literal=POSTGRES_USER=benefits \
               --from-literal=POSTGRES_PASSWORD=postgres \
-              --from-literal=POSTGRES_DB=benefits_db
+              -n benefits-${{ github.ref_name }}
         - name: Deploy Backend using Kustomize
           run: |
             cd k8s/backend
@@ -170,8 +178,8 @@ jobs:
               DOMAIN="dev.fledxy.com"
             fi
             
-            # Update frontend configmap
-            sed -i "s|DOMAIN:.*|DOMAIN: \"$DOMAIN\"|" configmap.yaml
+            # Update frontend configmap with correct API URL
+            sed -i "s|REACT_APP_API_URL:.*|REACT_APP_API_URL: \"https://api.$DOMAIN\"|" configmap.yaml
             kubectl apply -k .
         
         - name: Deploy Ingress and Network Policy
@@ -190,12 +198,20 @@ jobs:
             # Apply ingress and network policy
             kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
             kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
-
-        - name: Install ArgoCD server
+        - name: Deploy ArgoCD
           run: |
             kubectl create namespace argocd
             helm repo add argo https://argoproj.github.io/argo-helm
-            helm install argocd argo/argo-cd --namespace argocd   
+            helm upgrade --install argocd argo/argo-cd \
+              -f k8s/argocd/values.yaml \
+              --namespace argocd \
+              --create-namespace
+            
+        # - name: Install ArgoCD server
+        #   run: |
+        #     kubectl create namespace argocd
+        #     helm repo add argo https://argoproj.github.io/argo-helm
+        #     helm install argocd argo/argo-cd --namespace argocd   
 
   monitoring:
     needs: [build, deploy-infra, deploy-to-eks]
@@ -242,5 +258,4 @@ jobs:
         run: |
           echo "Waiting for pods to be ready..."
           kubectl wait --for=condition=ready pod -l app=grafana -n monitoring --timeout=300s
-
   
