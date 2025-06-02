@@ -17,13 +17,9 @@ server:
       cpu: 200m
       memory: 256Mi
   service:
-    type: LoadBalancer
+    type: ClusterIP
     port: 80
     portHttps: 443
-    annotations:
-      service.beta.kubernetes.io/aws-load-balancer-type: nlb
-      service.beta.kubernetes.io/aws-load-balancer-internal: "false"
-      service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
   ingress:
     enabled: true
     annotations:

@@ -3,7 +3,7 @@ name: argocd
 description: A Helm chart for ArgoCD on AWS EKS
 type: application
 version: 0.1.0
-appVersion: "2.7.4"
+appVersion: "2.10.7"
 maintainers:
   - name: fledxy
     email: trinhbao2000@gmail.com
