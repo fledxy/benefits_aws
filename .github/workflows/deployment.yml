@@ -243,19 +243,31 @@ jobs:
           fi
           
           # Update values.yaml with environment-specific settings
-          sed -i "s/domain: example.com/domain: $DOMAIN/" k8s/monitoring/values.yaml
-          sed -i "s/grafana.example.com/grafana.$DOMAIN/" k8s/monitoring/values.yaml
+          sed -i "s/domain: fledxy.com/domain: $DOMAIN/" k8s/monitoring/values.yaml
+          sed -i "s/grafana.fledxy.com/grafana.$DOMAIN/" k8s/monitoring/values.yaml
           
           # Update Grafana admin credentials
-          sed -i "s/admin: admin/admin: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}/" k8s/monitoring/values.yaml
+          sed -i "s/adminPassword: admin/adminPassword: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}/" k8s/monitoring/values.yaml
 
       - name: Install monitoring stack
         run: |
           helm uninstall monitoring --namespace monitoring || true
           helm upgrade --install monitoring ./k8s/monitoring --namespace monitoring
-      
+
       - name: Verify monitoring stack deployment
         run: |
           echo "Waiting for pods to be ready..."
           kubectl wait --for=condition=ready pod -l app=grafana -n monitoring --timeout=300s
+          
+          echo "Waiting for Loki pods to be ready..."
+          kubectl wait --for=condition=ready pod -l app=loki -n monitoring --timeout=300s
+          
+          echo "Verifying services..."
+          kubectl get svc -n monitoring
+          
+          echo "Checking Grafana pod logs..."
+          kubectl logs -l app=grafana -n monitoring --tail=50
+          
+          echo "Checking Loki pod logs..."
+          kubectl logs -l app=loki -n monitoring --tail=50
   
