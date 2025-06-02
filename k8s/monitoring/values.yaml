@@ -4,6 +4,7 @@ global:
   domain: fledxy.com
 
 grafana:
+  enabled: true
   image:
     repository: grafana/grafana
     tag: "latest"
@@ -32,9 +33,19 @@ grafana:
       - secretName: grafana-tls
         hosts:
           - grafana.fledxy.com
+  rbac:
+    create: true
+    pspEnabled: false
+  securityContext:
+    runAsUser: 472
+    runAsGroup: 472
+    fsGroup: 472
 
 loki:
   enabled: true
+  mode: SingleBinary
+  singleBinary:
+    enabled: true
   image:
     repository: grafana/loki
     tag: "2.9.2"
@@ -52,12 +63,11 @@ loki:
       cpu: "500m"
   storage:
     type: filesystem
+    persistence:
+      enabled: false
     retention:
       enabled: true
       period: "168h"
-    persistence:
-      enabled: true
-      size: 10Gi
   limits:
     ingestion_rate_mb: 4
     ingestion_burst_size_mb: 6

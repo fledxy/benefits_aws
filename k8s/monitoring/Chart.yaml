@@ -15,8 +15,10 @@ keywords:
   - fluent-bit
 dependencies:
   - name: grafana
-    version: "6.0.0"
-    repository: https://grafana.github.io/helm-charts
+    version: "7.0.0"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: grafana.enabled
   - name: loki
     version: "5.0.0"
-    repository: https://grafana.github.io/helm-charts
+    repository: "https://grafana.github.io/helm-charts"
+    condition: loki.enabled
