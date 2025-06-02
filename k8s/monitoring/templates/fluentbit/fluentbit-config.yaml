@@ -37,7 +37,6 @@ data:
         Match       kube.*
         Host        loki
         Port        3100
-        Labels      job=fluent-bit, namespace=$kubernetes['namespace_name'], pod=$kubernetes['pod_name'], container=$kubernetes['container_name']
+        Labels      job=fluent-bit
         Remove_Keys kubernetes,stream
-        Label_Keys  kubernetes['namespace_name'],kubernetes['pod_name'],kubernetes['container_name']
         Auto_Kubernetes_Labels  on 
