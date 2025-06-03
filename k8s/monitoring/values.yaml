@@ -17,8 +17,9 @@ prometheus:
       memory: "512Mi"
       cpu: "500m"
   service:
-    type: NodePort
-    port: 9090
+    type: LoadBalancer
+    port: 80
+    targetPort: 9090
   ingress:
     enabled: true
     annotations:
@@ -81,9 +82,9 @@ grafana:
     adminUser: admin
     adminPassword: admin
   service:
-    type: NodePort
-    port: 3001
-    targetPort: 3001
+    type: LoadBalancer
+    port: 80
+    targetPort: 3000
   resources:
     requests:
       memory: "256Mi"
