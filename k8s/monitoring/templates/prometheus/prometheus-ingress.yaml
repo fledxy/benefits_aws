@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus
+  annotations:
+    {{- toYaml .Values.prometheus.ingress.annotations | nindent 4 }}
+spec:
+  rules:
+    {{- range .Values.prometheus.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: {{ $.Values.prometheus.service.port }}
+    {{- end }}
+  tls:
+    {{- toYaml .Values.prometheus.ingress.tls | nindent 4 }} 
