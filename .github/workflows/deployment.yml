@@ -311,3 +311,4 @@ jobs:
           kubectl get svc -n monitoring
 
           echo "\nAll tests passed!"  
+          
