@@ -6,10 +6,10 @@ metadata:
   labels:
     app: grafana
 spec:
-  type: ClusterIP
+  type: {{ .Values.grafana.service.type }}
   ports:
-    - port: 80
-      targetPort: 3001
+    - port: {{ .Values.grafana.service.port }}
+      targetPort: {{ .Values.grafana.service.targetPort }}
       protocol: TCP
       name: http
   selector:

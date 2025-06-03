@@ -7,8 +7,8 @@ metadata:
     app: loki
 spec:
   ports:
-    - port: 3100
-      targetPort: 3100
+    - port: {{ .Values.loki.service.port }}
+      targetPort: {{ .Values.loki.service.targetPort }}
       protocol: TCP
       name: http
   selector:

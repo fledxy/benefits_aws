@@ -270,4 +270,44 @@ jobs:
           
           echo "Checking Loki pod logs..."
           kubectl logs -l app=loki -n monitoring --tail=50
-  
+  testing:
+    needs: [build, deploy-infra, deploy-to-eks, monitoring]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update kube config
+        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+      - name: Test Application and Monitoring
+        run: |
+          # Kiểm tra namespace của ứng dụng
+          echo "\nChecking application namespace..."
+          kubectl get namespace benefits-${{ github.ref_name }}
+
+          # Kiểm tra namespace monitoring
+          echo "\nChecking monitoring namespace..."
+          kubectl get namespace monitoring
+
+          # Kiểm tra pods của ứng dụng
+          echo "\nChecking application pods..."
+          kubectl get pods -n benefits-${{ github.ref_name }}
+
+          # Kiểm tra pods của monitoring
+          echo "\nChecking monitoring pods..."
+          kubectl get pods -n monitoring
+
+          # Kiểm tra services
+          echo "\nChecking services..."
+          kubectl get svc -n benefits-${{ github.ref_name }}
+          kubectl get svc -n monitoring
+
+          echo "\nAll tests passed!"  

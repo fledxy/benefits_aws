@@ -17,7 +17,7 @@ prometheus:
       memory: "512Mi"
       cpu: "500m"
   service:
-    type: ClusterIP
+    type: NodePort
     port: 9090
   ingress:
     enabled: true
@@ -81,8 +81,9 @@ grafana:
     adminUser: admin
     adminPassword: admin
   service:
-    type: ClusterIP
+    type: NodePort
     port: 3001
+    targetPort: 3001
   resources:
     requests:
       memory: "256Mi"
@@ -119,8 +120,9 @@ loki:
     tag: "2.9.2"
     pullPolicy: IfNotPresent
   service:
-    type: ClusterIP
+    type: NodePort
     port: 3100
+    targetPort: 3100
     grpcPort: 9096
   resources:
     requests:
