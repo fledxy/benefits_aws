@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 import logging
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -12,6 +13,9 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
+
+# Prometheus metrics
+http_requests_total = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint'])
 
 def get_database_url():
     """
@@ -59,21 +63,29 @@ with app.app_context():
 
 @app.route('/')
 def home():
+    http_requests_total.labels(method='GET', endpoint='/').inc()
     return jsonify({
         'message': 'Welcome to Benefits Log API',
         'endpoints': {
             'get_logs': '/api/logs (GET)',
-            'create_log': '/api/logs (POST)'
+            'create_log': '/api/logs (POST)',
+            'metrics': '/metrics (GET)'
         }
     })
 
+@app.route('/metrics')
+def metrics():
+    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+
 @app.route('/api/logs', methods=['GET'])
 def get_logs():
+    http_requests_total.labels(method='GET', endpoint='/api/logs').inc()
     logs = Log.query.order_by(Log.timestamp.desc()).all()
     return jsonify([log.to_dict() for log in logs])
 
 @app.route('/api/logs', methods=['POST'])
 def create_log():
+    http_requests_total.labels(method='POST', endpoint='/api/logs').inc()
     data = request.json
     new_log = Log(
         message=data['message'],
