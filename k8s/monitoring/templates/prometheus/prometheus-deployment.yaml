@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: prometheus
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
         - name: prometheus
@@ -22,8 +26,6 @@ spec:
             - --config.file=/etc/prometheus/prometheus.yml
             - --storage.tsdb.path=/prometheus
             - --storage.tsdb.retention.time={{ .Values.prometheus.retention }}
-            - --web.console.libraries=/usr/share/prometheus/console_libraries
-            - --web.console.templates=/usr/share/prometheus/consoles
           ports:
             - containerPort: 9090
           resources:
@@ -39,4 +41,4 @@ spec:
             name: prometheus-config
         - name: prometheus-storage
           emptyDir:
-            sizeLimit: {{ .Values.prometheus.storage.sizeLimit }} 
+            sizeLimit: {{ .Values.prometheus.storage.sizeLimit }}
