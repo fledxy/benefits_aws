@@ -5,6 +5,10 @@ metadata:
   namespace: benefits-dev
   labels:
     app: backend
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
 spec:
   replicas: 2
   selector:
@@ -14,12 +18,19 @@ spec:
     metadata:
       labels:
         app: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: backend
         image: fledxy/fledxy_application
         ports:
         - containerPort: 5000
+          name: http
+        - containerPort: 8080
+          name: metrics
         envFrom:
         - configMapRef:
             name: backend-config
