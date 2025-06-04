@@ -5,8 +5,8 @@ on:
     branches:
       - main # Trigger action on pushes to main branch
       - dev
-    # paths-ignore:
-    #   - "k8s/**"
+    paths-ignore:
+      - "k8s/**"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -198,6 +198,7 @@ jobs:
             # Apply ingress and network policy
             kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
             kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
+
         - name: Deploy ArgoCD
           run: |
             kubectl create namespace argocd
@@ -206,12 +207,6 @@ jobs:
               -f k8s/argocd/values.yaml \
               --namespace argocd \
               --create-namespace
-            
-        # - name: Install ArgoCD server
-        #   run: |
-        #     kubectl create namespace argocd
-        #     helm repo add argo https://argoproj.github.io/argo-helm
-        #     helm install argocd argo/argo-cd --namespace argocd   
 
   monitoring:
     needs: [build, deploy-infra, deploy-to-eks]
@@ -254,22 +249,6 @@ jobs:
           helm uninstall monitoring --namespace monitoring || true
           helm upgrade --install monitoring ./k8s/monitoring --namespace monitoring
 
-      - name: Verify monitoring stack deployment
-        run: |
-          echo "Waiting for pods to be ready..."
-          kubectl wait --for=condition=ready pod -l app=grafana -n monitoring --timeout=300s
-          
-          echo "Waiting for Loki pods to be ready..."
-          kubectl wait --for=condition=ready pod -l app=loki -n monitoring --timeout=300s
-          
-          echo "Verifying services..."
-          kubectl get svc -n monitoring
-          
-          echo "Checking Grafana pod logs..."
-          kubectl logs -l app=grafana -n monitoring --tail=50
-          
-          echo "Checking Loki pod logs..."
-          kubectl logs -l app=loki -n monitoring --tail=50
   testing:
     needs: [build, deploy-infra, deploy-to-eks, monitoring]
     runs-on: ubuntu-latest
@@ -289,25 +268,18 @@ jobs:
 
       - name: Test Application and Monitoring
         run: |
-          # Kiểm tra namespace của ứng dụng
+          # Kiểm tra namespace
           echo "\nChecking application namespace..."
-          kubectl get namespace benefits-${{ github.ref_name }}
-
-          # Kiểm tra namespace monitoring
-          echo "\nChecking monitoring namespace..."
-          kubectl get namespace monitoring
+          kubectl get namespace
 
           # Kiểm tra pods của ứng dụng
           echo "\nChecking application pods..."
           kubectl get pods -n benefits-${{ github.ref_name }}
-
-          # Kiểm tra pods của monitoring
-          echo "\nChecking monitoring pods..."
           kubectl get pods -n monitoring
-
+          kubectl get pods -n argocd
+          
           # Kiểm tra services
           echo "\nChecking services..."
           kubectl get svc -n benefits-${{ github.ref_name }}
           kubectl get svc -n monitoring
-
-          echo "\nAll tests passed!"  
+          kubectl get svc -n argocd

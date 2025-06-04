@@ -7,7 +7,7 @@ server:
   replicas: 1
   image:
     repository: quay.io/argoproj/argocd
-    tag: v2.7.4
+    tag: v2.10.7
     pullPolicy: IfNotPresent
   resources:
     requests:
@@ -40,7 +40,7 @@ repoServer:
   replicas: 1
   image:
     repository: quay.io/argoproj/argocd
-    tag: v2.7.4
+    tag: v2.10.7
     pullPolicy: IfNotPresent
   resources:
     requests:
@@ -54,7 +54,7 @@ applicationSet:
   enabled: true
   image:
     repository: quay.io/argoproj/argocd
-    tag: v2.7.4
+    tag: v2.10.7
     pullPolicy: IfNotPresent
   resources:
     requests:
@@ -66,7 +66,7 @@ applicationSet:
 
 configs:
   secret:
-    argocdServerAdminPassword: "$2a$10$mz3tF3c5Ux5x5x5x5x5x5O5x5x5x5x5x5x5x5x5x5x5x5x5x5" # bcrypt hash of "admin"
+    argocdServerAdminPassword: "$2a$10$mz3tF3c5Ux5x5x5x5x5x5O5x5x5x5x5x5x5x5x5x5x5x5x5x5"
   cm:
     url: https://argocd.fledxy.com
     admin.enabled: "true"
@@ -128,7 +128,7 @@ notifications:
   enabled: true
   image:
     repository: quay.io/argoproj/argocd
-    tag: v2.7.4
+    tag: v2.10.7
     pullPolicy: IfNotPresent
   resources:
     requests:
