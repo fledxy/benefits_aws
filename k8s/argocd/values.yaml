@@ -1,9 +1,4 @@
-global:
-  environment: production
-  domain: fledxy.com
-
 server:
-  name: argocd-server
   replicas: 1
   image:
     repository: quay.io/argoproj/argocd
@@ -18,97 +13,37 @@ server:
       memory: 256Mi
   service:
     type: LoadBalancer
-    port: 80
-    portHttps: 443
-  ingress:
-    enabled: false
     annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: letsencrypt-prod
-      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    hosts:
-      - argocd.fledxy.com
-    tls:
-      - secretName: argocd-server-tls
-        hosts:
-          - argocd.fledxy.com
-
-repoServer:
-  name: argocd-repo-server
-  replicas: 1
-  image:
-    repository: quay.io/argoproj/argocd
-    tag: v2.10.7
-    pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
-
-applicationSet:
-  enabled: true
-  image:
-    repository: quay.io/argoproj/argocd
-    tag: v2.10.7
-    pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
 
 configs:
   secret:
-    argocdServerAdminPassword: "$2a$10$mz3tF3c5Ux5x5x5x5x5x5O5x5x5x5x5x5x5x5x5x5x5x5x5x5"
-  cm:
-    url: https://argocd.fledxy.com
-    admin.enabled: "true"
-    statusbadge.enabled: "true"
-    application.instanceLabelKey: argocd.argoproj.io/instance
-    resource.customizations: |
-      argoproj.io/Application:
-        health.lua: |
-          health_status = {}
-          if obj.status ~= nil then
-            if obj.status.health ~= nil then
-              health_status.status = obj.status.health.status
-              if obj.status.health.message ~= nil then
-                health_status.message = obj.status.health.message
-              end
-            end
-          end
-          return health_status
-  rbac:
-    policy.default: role:readonly
-    policy.csv: |
-      p, role:org-admin, applications, *, */*, allow
-      p, role:org-admin, clusters, get, *, allow
-      p, role:org-admin, projects, get, *, allow
-      p, role:org-admin, repositories, get, *, allow
-      p, role:org-admin, logs, get, */*, allow
-      p, role:org-admin, exec, create, */*, allow
-      p, role:org-admin, applications, create, */*, allow
-      p, role:org-admin, applications, update, */*, allow
-      p, role:org-admin, applications, delete, */*, allow
-      p, role:org-admin, applications, sync, */*, allow
-      p, role:org-admin, applications, override, */*, allow
-      p, role:org-admin, applications, action/*, */*, allow
-      p, role:org-admin, clusters, create, *, allow
-      p, role:org-admin, clusters, update, *, allow
-      p, role:org-admin, clusters, delete, *, allow
-      p, role:org-admin, projects, create, *, allow
-      p, role:org-admin, projects, update, *, allow
-      p, role:org-admin, projects, delete, *, allow
-      p, role:org-admin, repositories, create, *, allow
-      p, role:org-admin, repositories, update, *, allow
-      p, role:org-admin, repositories, delete, *, allow
+    argocdServerAdminPassword: "$2b$10$VUI.Ya.cZKSJxy3Ssab4Me0AmoHz2KiUGNhD7TvRYddC6YwTDeC7i"
+
+rbac:
+  enabled: true
+  create: true
+    p, role:org-admin, clusters, get, *, allow
+    p, role:org-admin, projects, get, *, allow
+    p, role:org-admin, repositories, get, *, allow
+    p, role:org-admin, logs, get, */*, allow
+    p, role:org-admin, exec, create, */*, allow
+    p, role:org-admin, applications, create, */*, allow
+    p, role:org-admin, applications, update, */*, allow
+    p, role:org-admin, applications, delete, */*, allow
+    p, role:org-admin, applications, sync, */*, allow
+    p, role:org-admin, applications, override, */*, allow
+    p, role:org-admin, applications, action/*, */*, allow
+    p, role:org-admin, clusters, create, *, allow
+    p, role:org-admin, clusters, update, *, allow
+    p, role:org-admin, clusters, delete, *, allow
+    p, role:org-admin, projects, create, *, allow
+    p, role:org-admin, projects, update, *, allow
+    p, role:org-admin, projects, delete, *, allow
+    p, role:org-admin, repositories, create, *, allow
+    p, role:org-admin, repositories, update, *, allow
+    p, role:org-admin, repositories, delete, *, allow
 
 redis:
   enabled: true
@@ -124,42 +59,9 @@ redis:
       cpu: 200m
       memory: 256Mi
 
-notifications:
-  enabled: true
-  image:
-    repository: quay.io/argoproj/argocd
-    tag: v2.10.7
-    pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
-
-dex:
-  enabled: true
-  image:
-    repository: ghcr.io/dexidp/dex
-    tag: v2.35.3
-    pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
-
-rbac:
-  enabled: true
-  create: true
-
 serviceAccount:
   create: true
   name: argocd-application-controller
-  annotations: {}
 
 hpa:
   enabled: true
