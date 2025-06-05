@@ -10,6 +10,7 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    service.beta.kubernetes.io/aws-load-balancer-security-groups: sg-0f386ec65c5cf2b06
 spec:
   type: LoadBalancer
   selector:
@@ -17,4 +18,4 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80 
+      targetPort: 80
