@@ -12,5 +12,4 @@ data:
   DB_PASSWORD: "postgres"
   DB_HOST: "postgres"
   DB_PORT: "5432"
-  # CORS_ORIGINS: "https://benefits.dev.fledxy.com" 
   CORS_ORIGINS: "*" 
