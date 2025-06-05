@@ -4,4 +4,4 @@ metadata:
   name: frontend-config
   namespace: benefits-dev
 data:
-  REACT_APP_API_URL: "http://fledxy.cloud/api"
+  REACT_APP_API_URL: "https://api.fledxy.cloud/api"

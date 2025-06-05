@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: backend-network-policy
+  namespace: benefits-dev
 spec:
   podSelector:
     matchLabels:
@@ -13,10 +14,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          kubernetes.io/metadata.name: benefits-$(DOMAIN)
-    - podSelector:
-        matchLabels:
-          app: frontend
+          kubernetes.io/metadata.name: benefits-dev
     ports:
     - protocol: TCP
       port: 5000
@@ -33,6 +31,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: frontend-network-policy
+  namespace: benefits-dev
 spec:
   podSelector:
     matchLabels:
@@ -44,7 +43,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          kubernetes.io/metadata.name: benefits-$(DOMAIN)
+          kubernetes.io/metadata.name: benefits-dev
     ports:
     - protocol: TCP
       port: 80
@@ -61,6 +60,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: postgres-network-policy
+  namespace: benefits-dev
 spec:
   podSelector:
     matchLabels:
