@@ -8,7 +8,6 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-scheme: internal
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
     service.beta.kubernetes.io/aws-load-balancer-internal: "true"
-    service.beta.kubernetes.io/aws-load-balancer-security-groups: sg-0ade5770422fbd707
 spec:
   type: LoadBalancer
   selector:
