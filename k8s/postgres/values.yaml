@@ -19,9 +19,6 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 999
 
-# Namespace will be set during deployment
-# namespace: benefits-dev
-
 service:
   type: ClusterIP
   port: 5432

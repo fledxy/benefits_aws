@@ -40,5 +40,5 @@ spec:
           configMap:
             name: prometheus-config
         - name: prometheus-storage
-          emptyDir:
-            sizeLimit: {{ .Values.prometheus.storage.sizeLimit }}
+          persistentVolumeClaim:
+            claimName: prometheus-storage

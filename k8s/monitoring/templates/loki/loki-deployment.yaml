@@ -56,6 +56,8 @@ spec:
           configMap:
             name: loki-config
         - name: loki-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: loki-data
         - name: wal
-          emptyDir: {} 
+          persistentVolumeClaim:
+            claimName: loki-data 
