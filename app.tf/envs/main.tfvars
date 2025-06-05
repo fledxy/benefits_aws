@@ -33,7 +33,7 @@ eks_config = {
 }
 vm-config = {
   vm1 = {
-    instance_type = "t2.small",
+    instance_type = "t2.medium",
     tags = {
       "ext-name" = "vm2"
       "funct"    = "purpose test"
@@ -75,7 +75,7 @@ api_gateways = {
       "GET /" = {
         integration = {
           type   = "HTTP_PROXY"
-          uri    = "https://max-weather.free.beeceptor.com"
+          uri    = "https://api.fledxy.cloud"
           method = "GET"
         }
       }
