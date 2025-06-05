@@ -4,7 +4,4 @@ metadata:
   name: frontend-config
   namespace: benefits-dev
 data:
-  # API_URL: "https://api.fledxy.cloud"
-  # API_TIMEOUT: "30000"
-  # API_RETRY_ATTEMPTS: "3"
-  REACT_APP_API_URL: "http://api.fledxy.cloud/api"  
+  REACT_APP_API_URL: "http://fledxy.cloud/api"

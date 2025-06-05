@@ -153,16 +153,7 @@ jobs:
             cd k8s/backend
             kustomize edit set namespace benefits-${{ github.ref_name }}
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-backend:${{ github.sha }}
-            
-            # Set domain based on branch
-            if [ "${{ github.ref_name }}" = "main" ]; then
-              DOMAIN="fledxy.com"
-            else
-              DOMAIN="dev.fledxy.com"
-            fi
-            
-            # Update backend configmap
-            sed -i "s|CORS_ORIGINS:.*|CORS_ORIGINS: \"https://benefits.$DOMAIN\"|" configmap.yaml
+            sed -i "s|CORS_ORIGINS:.*|CORS_ORIGINS: \"https://api.fledxy.cloud\"|" configmap.yaml
             kubectl apply -k .
             
         - name: Deploy Frontend using Kustomize
@@ -170,16 +161,7 @@ jobs:
             cd k8s/frontend
             kustomize edit set namespace benefits-${{ github.ref_name }}
             kustomize edit set image fledxy/fledxy_application=fledxy/benefits-frontend:${{ github.sha }}
-            
-            # Set domain based on branch
-            if [ "${{ github.ref_name }}" = "main" ]; then
-              DOMAIN="fledxy.com"
-            else
-              DOMAIN="dev.fledxy.com"
-            fi
-            
-            # Update frontend configmap with correct API URL
-            sed -i "s|REACT_APP_API_URL:.*|REACT_APP_API_URL: \"https://api.$DOMAIN\"|" configmap.yaml
+            sed -i "s|REACT_APP_API_URL:.*|REACT_APP_API_URL: \"https://fledxy.cloud\"|" configmap.yaml
             kubectl apply -k .
         
         - name: Deploy Ingress and Network Policy
