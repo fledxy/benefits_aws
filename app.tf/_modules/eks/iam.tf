@@ -92,6 +92,12 @@ resource "aws_iam_role_policy" "node-ebs-csi-policy" {
     ]
   })
 }
+resource "aws_iam_policy" "ebs_csi_driver" {
+  name        = "${var.cluster_name}-${local.identify}-ebs-csi-driver-policy"
+  description = "EBS CSI Driver policy for EKS nodes"
+  policy      = aws_iam_role_policy.node-ebs-csi-policy.policy
+}
+
 
 resource "aws_iam_instance_profile" "node" {
   name = "${var.cluster_name}-${local.identify}-eks-node-instance-profile"

@@ -32,8 +32,9 @@ prometheus:
         hosts:
           - prometheus.fledxy.com
   storage:
-    type: emptyDir
-    sizeLimit: 10Gi
+    type: persistentVolumeClaim
+    size: 10Gi
+    storageClass: ebs
   retention: 15d
   scrapeInterval: 15s
   evaluationInterval: 15s
@@ -135,10 +136,11 @@ loki:
   storage:
     type: filesystem
     persistence:
-      enabled: false
-    filesystem:
       enabled: true
+      storageClass: ebs
       size: 10Gi
+    filesystem:
+      enabled: false
   limits:
     ingestion_rate_mb: 4
     ingestion_burst_size_mb: 6
