@@ -10,7 +10,7 @@ metadata:
     prometheus.io/port: "8080"
     prometheus.io/path: "/metrics"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backend
