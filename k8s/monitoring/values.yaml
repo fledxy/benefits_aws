@@ -99,11 +99,11 @@ grafana:
       kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: letsencrypt-prod
     hosts:
-      - grafana.fledxy.com
+      - grafana.fledxy.cloud
     tls:
       - secretName: grafana-tls
         hosts:
-          - grafana.fledxy.com
+          - grafana.fledxy.cloud
   rbac:
     create: true
     pspEnabled: false
