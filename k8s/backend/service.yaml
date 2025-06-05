@@ -8,6 +8,10 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-scheme: internal
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
     service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: '60'
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: 'true'
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: '300'
 spec:
   type: LoadBalancer
   selector:
@@ -15,4 +19,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
+      targetPort: 5000
+    - protocol: TCP
+      port: 443
       targetPort: 5000
