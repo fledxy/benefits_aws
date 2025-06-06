@@ -19,11 +19,17 @@ RUN npm run build
 # Production stage
 FROM --platform=linux/amd64 nginx:alpine
 
+# Set build argument with default value
+ARG NAMESPACE=benefits-dev
+
 # Copy the built files from builder stage
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration as template
+COPY nginx.conf /etc/nginx/conf.d/default.conf.template
+
+# Replace the namespace in nginx configuration
+RUN sed -i "s/\${NAMESPACE}/$NAMESPACE/g" /etc/nginx/conf.d/default.conf.template
 
 # Expose port 80
 EXPOSE 80
