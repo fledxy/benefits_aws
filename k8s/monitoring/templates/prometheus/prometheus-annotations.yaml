@@ -2,7 +2,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-annotations
-  namespace: benefits-dev
 data:
   prometheus-annotations.yaml: |
     apiVersion: apps/v1
