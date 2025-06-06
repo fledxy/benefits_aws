@@ -71,6 +71,7 @@ api_gateways = {
     allow_headers                        = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
     fail_on_warnings                     = false
     create_domain_name                   = false
+    aws_api_gateway_rest_api_description = "API Gateway for Benefits Service"
     routes = {
       "GET /" = {
         integration = {
