@@ -166,17 +166,7 @@ jobs:
         
         - name: Deploy Ingress and Network Policy
           run: |
-            # Set domain based on branch
-            if [ "${{ github.ref_name }}" = "main" ]; then
-              DOMAIN="fledxy.com"
-            else
-              DOMAIN="dev.fledxy.com"
-            fi
-            
-            # Replace domain in ingress.yaml and network-policy.yaml
-            sed -i "s/\$(DOMAIN)/$DOMAIN/g" k8s/ingress.yaml
-            sed -i "s/\$(DOMAIN)/$DOMAIN/g" k8s/network-policy.yaml
-            
+          
             # Apply ingress and network policy
             kubectl apply -f k8s/ingress.yaml --namespace benefits-${{ github.ref_name }}
             kubectl apply -f k8s/network-policy.yaml --namespace benefits-${{ github.ref_name }}
