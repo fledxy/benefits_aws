@@ -5,8 +5,8 @@ on:
     branches:
       - main # Trigger action on pushes to main branch
       - dev
-    # paths-ignore:
-    #   - "k8s/**"
+    paths-ignore:
+      - "k8s/**"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -49,38 +49,23 @@ jobs:
          run: |
              docker tag fledxy/benefits-backend:${{ github.sha }} fledxy/benefits-backend:latest
              docker tag fledxy/benefits-frontend:${{ github.sha }} fledxy/benefits-frontend:latest
-
-  deploy-infra:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app.tf
-
-    steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
-
-        - name: Setup Terraform
-          uses: hashicorp/setup-terraform@v3
-
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{ secrets.AWS_REGION }} 
-
-        - name: Terraform init
-          run: terraform init -upgrade
-
-        - name: Terraform plan for environment 
-          run: terraform plan --var-file=envs/${{ github.ref_name }}.tfvars
-
-        - name: Terraform apply for environment 
-          run: terraform apply -auto-approve --var-file=envs/${{ github.ref_name }}.tfvars
+       - name: SonarQube Scan
+         env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+         run: |
+              wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+              unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+              export PATH="$PATH:$(pwd)/sonar-scanner-5.0.1.3006-linux/bin"
+              sonar-scanner \
+                -Dsonar.projectKey=fledxy_benefits_aws\
+                -Dsonar.organization=fledxy \
+                -Dsonar.sources=. \
+                -Dsonar.host.url=https://sonarcloud.io \
+                -Dsonar.login=$SONAR_TOKEN
+                
   
   deploy-to-eks:
-    needs: [build, deploy-infra]
+    needs: [build]
     runs-on: ubuntu-latest
 
     steps:
@@ -103,19 +88,6 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ secrets.AWS_REGION }} 
 
-        - name: SonarQube Scan
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          run: |
-              wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-              unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-              export PATH="$PATH:$(pwd)/sonar-scanner-5.0.1.3006-linux/bin"
-              sonar-scanner \
-                -Dsonar.projectKey=fledxy_benefits_aws\
-                -Dsonar.organization=fledxy \
-                -Dsonar.sources=. \
-                -Dsonar.host.url=https://sonarcloud.io \
-                -Dsonar.login=$SONAR_TOKEN
 
         - name: Access to eks cluster
           run: |
@@ -184,7 +156,7 @@ jobs:
               --create-namespace
 
   monitoring:
-    needs: [build, deploy-infra, deploy-to-eks]
+    needs: [build, deploy-to-eks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -207,14 +179,14 @@ jobs:
         run: |
           # Set domain based on branch
           if [ "${{ github.ref_name }}" = "main" ]; then
-            DOMAIN="fledxy.com"
+            DOMAIN="fledxy.cloud"
           else
-            DOMAIN="dev.fledxy.com"
+            DOMAIN="dev.fledxy.cloud"
           fi
           
           # Update values.yaml with environment-specific settings
-          sed -i "s/domain: fledxy.com/domain: $DOMAIN/" k8s/monitoring/values.yaml
-          sed -i "s/grafana.fledxy.com/grafana.$DOMAIN/" k8s/monitoring/values.yaml
+          sed -i "s/domain: fledxy.cloud/domain: $DOMAIN/" k8s/monitoring/values.yaml
+          sed -i "s/grafana.fledxy.cloud/grafana.$DOMAIN/" k8s/monitoring/values.yaml
           
           # Update Grafana admin credentials
           sed -i "s/adminPassword: admin/adminPassword: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}/" k8s/monitoring/values.yaml
@@ -225,36 +197,36 @@ jobs:
           helm upgrade --install monitoring ./k8s/monitoring --namespace monitoring
 
   testing:
-    needs: [build, deploy-infra, deploy-to-eks, monitoring]
+    needs: [build, deploy-to-eks, monitoring]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Update kube config
-        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
-
-      - name: Test Application and Monitoring
+      - name: Run multiple shell commands
         run: |
-          # Kiểm tra namespace
-          echo "\nChecking application namespace..."
-          kubectl get namespace
+          ENV=prod
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            ENV=dev
+          fi
+          echo "Process TVT"
+          URL="https://fledxy.cloud/api/logs"
+          MAX_RETRIES=5
+          DELAY=2
+          attempt=0
+          sleep 10
+          # Function to perform curl and handle retries
+          while (( attempt < MAX_RETRIES )); do
+              echo "Attempt $((attempt + 1)) to test URL: $URL"
+              # Perform the curl request
+              curl --fail --silent --show-error "$URL" && {
+                  echo "URL responded successfully."
+                  exit 0
+              }
+              ((attempt++))
+              if (( attempt < MAX_RETRIES )); then
+                  echo "Retrying in $DELAY seconds..."
+                  sleep $DELAY
+              fi
+          done
 
-          # Kiểm tra pods của ứng dụng
-          echo "\nChecking application pods..."
-          kubectl get pods -n benefits-${{ github.ref_name }}
-          kubectl get pods -n monitoring
-          kubectl get pods -n argocd
-
-          # Kiểm tra services
-          echo "\nChecking services..."
-          kubectl get svc -n benefits-${{ github.ref_name }}
-          kubectl get svc -n monitoring
-          kubectl get svc -n argocd
+          # If all attempts fail, throw an error
+          echo "Error: URL test failed after $MAX_RETRIES attempts."
+          exit 1
