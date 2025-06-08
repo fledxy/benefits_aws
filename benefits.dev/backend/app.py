@@ -31,7 +31,7 @@ def get_database_url():
 app = Flask(__name__)
 # Configure CORS to allow requests from all origins
 CORS(app, resources={r"/*": {
-    "origins": "*",
+    "origins": "http://fledxy.cloud",
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "allow_headers": ["Content-Type", "Authorization"]
 }})
