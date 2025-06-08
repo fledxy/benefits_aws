@@ -98,7 +98,6 @@ jobs:
         
         - name: Create namespace for branch
           run: |
-            kubectl get namespace | grep -vE 'kube-system|default|kube-public|kube-node-lease' | awk '{print $1}' | xargs kubectl delete namespace
             kubectl create namespace benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
             
         - name: Deploy PostgreSQL using Helm
