@@ -32,9 +32,7 @@ prometheus:
         hosts:
           - prometheus.fledxy.com
   storage:
-    type: persistentVolumeClaim
-    size: 10Gi
-    storageClass: ebs
+    type: emptyDir
   retention: 15d
   scrapeInterval: 15s
   evaluationInterval: 15s
@@ -114,9 +112,6 @@ grafana:
 
 loki:
   enabled: true
-  mode: SingleBinary
-  singleBinary:
-    enabled: true
   image:
     repository: grafana/loki
     tag: "2.9.2"
@@ -133,23 +128,13 @@ loki:
     limits:
       memory: "512Mi"
       cpu: "500m"
-  storage:
-    type: filesystem
-    persistence:
-      enabled: true
-      storageClass: ebs
-      size: 10Gi
-    filesystem:
-      enabled: false
   limits:
     ingestion_rate_mb: 4
     ingestion_burst_size_mb: 6
     max_query_series: 500
-    max_query_lookback: 168h
-    max_query_length: 721h
-    max_query_parallelism: 32
-    cardinality_limit: 100000
     split_queries_by_interval: 15m
+  storage:
+    type: emptyDir
 
 fluentbit:
   enabled: true

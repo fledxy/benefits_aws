@@ -2,7 +2,10 @@
   on:
     push:
       branches:
-        - main
+        - main # Trigger action on pushes to main branch
+        - dev
+      paths-ignore:
+        - "k8s/**"
   jobs:
     deploy-infra:
         runs-on: ubuntu-latest

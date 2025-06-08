@@ -5,8 +5,6 @@ on:
     branches:
       - main # Trigger action on pushes to main branch
       - dev
-    paths-ignore:
-      - "k8s/**"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -100,6 +98,7 @@ jobs:
         
         - name: Create namespace for branch
           run: |
+            kubectl get namespace | grep -vE 'kube-system|default|kube-public|kube-node-lease' | awk '{print $1}' | xargs kubectl delete namespace
             kubectl create namespace benefits-${{ github.ref_name }} --dry-run=client -o yaml | kubectl apply -f -
             
         - name: Deploy PostgreSQL using Helm
@@ -194,7 +193,7 @@ jobs:
       - name: Install monitoring stack
         run: |
           helm uninstall monitoring --namespace monitoring || true
-          helm upgrade --install monitoring ./k8s/monitoring --namespace monitoring
+          helm upgrade --install monitoring ./k8s/monitoring --namespace monitoring --create-namespace
 
   testing:
     needs: [build, deploy-to-eks, monitoring]
@@ -207,7 +206,7 @@ jobs:
             ENV=dev
           fi
           echo "Process TVT"
-          URL="https://fledxy.cloud/api/logs"
+          URL="https://api.fledxy.cloud/api/logs"
           MAX_RETRIES=5
           DELAY=2
           attempt=0
