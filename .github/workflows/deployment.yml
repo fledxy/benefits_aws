@@ -201,7 +201,7 @@ jobs:
       - name: Run multiple shell commands
         run: |
           echo "Process TVT"
-          URL="https://fledxy.cloud"
+          URL="http://fledxy.cloud"
           MAX_RETRIES=5
           DELAY=2
           attempt=0
