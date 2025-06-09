@@ -110,16 +110,18 @@ grafana:
     runAsGroup: 472
     fsGroup: 472
 
-loki:
+lloki:
   enabled: true
+  mode: SingleBinary
+  singleBinary:
+    enabled: true
   image:
     repository: grafana/loki
     tag: "2.9.2"
     pullPolicy: IfNotPresent
   service:
-    type: NodePort
+    type: ClusterIP
     port: 3100
-    targetPort: 3100
     grpcPort: 9096
   resources:
     requests:
@@ -128,39 +130,19 @@ loki:
     limits:
       memory: "512Mi"
       cpu: "500m"
+  storage:
+    type: filesystem
+    persistence:
+      enabled: false
   limits:
     ingestion_rate_mb: 4
     ingestion_burst_size_mb: 6
     max_query_series: 500
+    max_query_lookback: 168h
+    max_query_length: 721h
+    max_query_parallelism: 32
+    cardinality_limit: 100000
     split_queries_by_interval: 15m
-  storage:
-    type: emptyDir
-  gateway:
-    enabled: false
-  read:
-    enabled: false
-  write:
-    enabled: false
-  table-manager:
-    enabled: false
-  distributor:
-    enabled: false
-  ingester:
-    enabled: true
-  querier:
-    enabled: true
-  query-frontend:
-    enabled: false
-  ruler:
-    enabled: false
-  alertmanager:
-    enabled: false
-  compactor:
-    enabled: false
-  memberlist:
-    enabled: false
-  ring:
-    enabled: false
 
 fluentbit:
   enabled: true
