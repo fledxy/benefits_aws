@@ -99,9 +99,30 @@ grafana:
     hosts:
       - grafana.fledxy.cloud
     tls:
-      - secretName: grafana-tls
+
+loki:
+  enabled: true
+  service:
+    port: 80
+    targetPort: 3100
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - loki.fledxy.cloud
+    tls:
+      - secretName: loki-tls
         hosts:
-          - grafana.fledxy.cloud
+          - loki.fledxy.cloud
   rbac:
     create: true
     pspEnabled: false
