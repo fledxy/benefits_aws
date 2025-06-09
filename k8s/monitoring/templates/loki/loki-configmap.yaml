@@ -11,20 +11,25 @@ data:
       grpc_listen_port: 9096
     common:
       path_prefix: /loki
-      storage:
-        inmemory:
-          max_chunk_age: 2h
       replication_factor: 1
+      ring:
+        kvstore:
+          store: inmemory
     schema_config:
       configs:
         - from: 2020-05-15
-          store: inmemory
+          store: boltdb-shipper
           object_store: filesystem
           schema: v11
           index:
             prefix: index_
             period: 24h
     storage_config:
+      boltdb_shipper:
+        active_index_directory: /loki/boltdb-shipper-active
+        cache_location: /loki/boltdb-shipper-cache
+        cache_ttl: 24h
+        shared_store: filesystem
       filesystem:
         directory: /loki/chunks
     limits_config:
@@ -37,14 +42,12 @@ data:
       split_queries_by_interval: 15m
     chunk_store_config:
       max_look_back_period: 24h
-    querier:
-      align_queries_with_step: true
-      max_query_length: 12h
-      max_entries_limit: 500000
-      max_entries_limit_per_series: 50000
     ingester:
       chunk_idle_period: 1h
       chunk_retain_period: 10m
-      max_chunk_age: 1h
-      chunk_target_size: 1500000
       chunk_encoding: snappy
+    compactor:
+      working_directory: /loki/compactor
+      shared_store: filesystem
+    memberlist:
+      join_members: [] 

@@ -6,7 +6,6 @@ metadata:
   labels:
     app: loki
 spec:
-  type: LoadBalancer
   ports:
     - port: {{ .Values.loki.service.port }}
       targetPort: {{ .Values.loki.service.targetPort }}
